@@ -93,6 +93,10 @@ To:
 
         [filter:apiweb] 
         use = egg:apiweb#apiweb
+        rpc_server_ip = SERVER_IP
+        rpc_server_port = SERVER_PORT
+        
+If rpc_server_ip and rpc_server_port are not defined the default values will be 127.0.0.1 and 61234.
 
 
 4) Restart the proxy:
