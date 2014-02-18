@@ -70,7 +70,7 @@ class Simple(resource.Resource):
         __import__(name)
         return sys.modules[name]
     def call_object(self, tail, request):
-        module_ = self.my_import('server_twisted')
+        module_ = self.my_import('server')
         obj = getattr(module_, tail + '_resource')()
         return obj
     def getChild(self, name, request):
