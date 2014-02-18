@@ -2,11 +2,12 @@
 
 # C extensions
 *.so
-
+*.svn
 # Packages
 *.egg
 *.egg-info
 dist
+.svn
 build
 eggs
 parts
