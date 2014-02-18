@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/stacksync/!svn/ver/382/branches/rest-api/refactoring/api/v2
+END
+api_library.py
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/stacksync/!svn/ver/382/branches/rest-api/refactoring/api/v2/api_library.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/stacksync/!svn/ver/382/branches/rest-api/refactoring/api/v2/__init__.py
+END
+stacksync_server.py
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/stacksync/!svn/ver/382/branches/rest-api/refactoring/api/v2/stacksync_server.py
+END
+server_factory.py
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/stacksync/!svn/ver/382/branches/rest-api/refactoring/api/v2/server_factory.py
+END
+dummy_server.py
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/stacksync/!svn/ver/382/branches/rest-api/refactoring/api/v2/dummy_server.py
+END

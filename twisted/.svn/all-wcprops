@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/stacksync/!svn/ver/388/branches/rest-api/refactoring/twisted
+END
+setup.py
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/stacksync/!svn/ver/389/branches/rest-api/refactoring/twisted/setup.py
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/stacksync/!svn/ver/384/branches/rest-api/refactoring/twisted/.project
+END
+.pydevproject
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/stacksync/!svn/ver/389/branches/rest-api/refactoring/twisted/.pydevproject
+END
