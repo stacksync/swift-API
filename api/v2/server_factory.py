@@ -11,6 +11,6 @@ DUMMY = 'dummy'
 class server_factory(object):
     def new_server(self, kind):
         if kind == STACKSYNC:
-            return StacksyncServerController()
+            return StacksyncServerController("10.30.102.241", 61234)
         elif kind == DUMMY:
             return DummyServerController()
