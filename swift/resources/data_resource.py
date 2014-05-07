@@ -48,7 +48,7 @@ def PUT(request, api_library):
     chunk_maker = BuildFile(content, [])
     chunk_maker.separate()
 
-    url_base = request['PATH_INFO'].replace("/files/"+file_id+"/data", "");
+    url_base = request['PATH_INFO'].replace("/files/"+file_id+"/data", "")
     script_name = request['SCRIPT_NAME']
     data_handler = DataHandler(request["APP"])
     response = data_handler.upload_file_chunks(request, url_base, script_name, chunk_maker)
