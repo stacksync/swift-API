@@ -34,8 +34,14 @@ def PUT(request, api_library):
     message = api_library.get_metadata(1234, file_id)
     if not message:
         return create_error_response(404, "File or folder not found at the specified path:" + request.path_info)
-    
+
     message = json.loads(message)
+    if "error" in message:
+        # Create error response
+        error = message["error"]
+        response = create_error_response(error, str(json.dumps(message['description'])))
+    else:
+        response = HTTPCreated(body=str(json.dumps(message['metadata'])))
     # Create new version to save old content version
     #TODO: Define mimetype, size and chunk
 
@@ -48,7 +54,7 @@ def PUT(request, api_library):
     response = data_handler.upload_file_chunks(request, url_base, script_name, chunk_maker)
 
     chunks = chunk_maker.hashesList
-    checksum = str((zlib.adler32(content) & 0xffffffff)) #it's necessary??
+    checksum = str((zlib.adler32(content) & 0xffffffff))
     file_size = str(len(content))
     mimetype = magic.from_buffer(content, mime=True)
     status = response.status_int
@@ -60,7 +66,7 @@ def PUT(request, api_library):
         return create_error_response(404, "Some problem to create a new version of file")
 
     # TODO: Using name and full path update the file into DB, using new version.
-    data = json.loads(message)
+    data = json.loads(message_new_version)
     if "error" in data:
         # Create error response
         error = data["error"]
@@ -133,3 +139,5 @@ def GET(request, api_library):
         else:
             return HTTPBadRequest()
     """
+
+

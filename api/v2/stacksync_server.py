@@ -1,6 +1,5 @@
 import xmlrpclib
 
-
 class StacksyncServerController():
     """
     Handles requests on objects
@@ -36,7 +35,7 @@ class StacksyncServerController():
 
         include_deleted = "true" if include_deleted is True else "false"
 
-        response = self.rpc_server.XmlRpcSyncHandler.getMetadata(str(user), str(folder_id), "true", str(include_deleted)
+        response = self.rpc_server.XmlRpcSyncHandler.getFolderContents(str(user), str(folder_id), "true", str(include_deleted)
                                                                  , "null", "null")
         return response
         #TODO: user item in documentation doesn't exist
@@ -82,22 +81,22 @@ class StacksyncServerController():
         # return response
 
     def delete_item(self, user, file_id):
-        response = self.rpcServer.XmlRpcSyncHandler.deleteMetadataFile(user, file_id)
+        response = self.rpcServer.XmlRpcSyncHandler.deleteItem(user, str(file_id))
 
         return response
 
     def new_folder(self, user, name, parent):
-        response = self.rpcServer.XmlRpcSyncHandler.putMetadataFolder(str(user), str(name), str(parent))
+        response = self.rpcServer.XmlRpcSyncHandler.newFolder(str(user), str(name), str(parent))
 
         return response
 
-    def new_file(self, user, name, parent):
-        response = self.rpcServer.XmlRpcSyncHandler.putMetadataFile(str(user), str(name), str(parent), overwrite,
-                                                                    checksum, fileSize, mimetype, chunks)
+    def new_file(self, user, name, parent, checksum, file_size, mimetype, chunks):
+        response = self.rpcServer.XmlRpcSyncHandler.newFile(str(user), str(name), str(parent),
+                                                            str(checksum), str(file_size), str(mimetype), str(chunks))
 
         return response
 
-    def update_data(self, user, file_id, mimetype, size, chunk):
+    def update_data(self, user, file_id, checksum, size,  mimetype, chunk):
 
         """When u update the data content, it's necessary to create a new file version metadata
          to guarantee the version control. Using old methods, we will use the method new_file, to implement

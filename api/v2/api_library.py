@@ -24,8 +24,8 @@ class Api_library(object):
         response = self.server.new_folder(user_id, name, parent)
         message = json.dumps(response)              
         return message    
-    def post_metadata(self, user_id, name, parent=None):
-        response = self.server.new_file(user_id, name, parent)
+    def new_file(self, user_id, name, parent, checksum, file_size, mimetype, chunks):
+        response = self.server.new_file(user_id, name, parent, checksum, file_size, mimetype, chunks)
         message = json.dumps(response)        
         return message
     def update_data(self, user, file_id, parent, mimetype, size, chunk):
