@@ -9,6 +9,6 @@ setup(name='v2',
       author_email='edgar.zamora@urv.cat, cristian@cotesgonzalez.com, adria.moreno@urv.cat',
       url='',
       packages=['v2'],
-      requires=['swift(>=1.4)'],
+      requires=['swift_api(>=1.4)'],
       entry_points={'paste.filter_factory':
                         ['v2=swift2.v2:filter_factory']})

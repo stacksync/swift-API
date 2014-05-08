@@ -13,7 +13,7 @@ class StackSyncMiddleware(object):
         self.app = app
         self.conf = conf
         #Use Api_Library module with dummy or stacksync sever to handle the metadata
-        self.api_library = Api_library('dummy')
+        self.api_library = Api_library('stack')
     
     @wsgify
     def __call__(self, req):
@@ -25,8 +25,7 @@ class StackSyncMiddleware(object):
         response = self.authorize(req)
         if response:
             return response
-        
-        req["APP"] = self.app
+
                 #Redirect the petition to resource using url information
         head, tail = os.path.split(req.path)
         if tail == 'data'or tail == 'versions'or tail == 'file' or tail == 'folder' or tail == 'contents':
@@ -48,11 +47,11 @@ class StackSyncMiddleware(object):
         return response
     
     def authorize(self, req):
-        if 'swift.authorize' in req.environ:
-            resp = req.environ['swift.authorize'](req)
+        if 'swift_api.authorize' in req.environ:
+            resp = req.environ['swift_api.authorize'](req)
             if not resp:
                 # No resp means authorized, no delayed recheck required.
-                del req.environ['swift.authorize']
+                del req.environ['swift_api.authorize']
             else:
                 # Response indicates denial, but we might delay the denial
                 # and recheck later. If not delayed, return the error now.

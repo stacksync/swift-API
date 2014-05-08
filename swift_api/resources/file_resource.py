@@ -70,7 +70,7 @@ def POST(request, api_library):
         return response
 
     '''Without content'''
-    message = api_library.post_metadata(1234, name, parent, None, 0, None, None)
+    message = api_library.post_metadata(request.get("stacksync_user_id"), name, parent, None, 0, None, None)
     data = json.loads(message)
     if "error" in data:
         # Create error response
@@ -89,7 +89,7 @@ def DELETE(request, api_library):
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
     # get Metadata of the file that had been deleted
-    message = api_library.delete_item(1234, file_id)
+    message = api_library.delete_item(request.get("stacksync_user_id"), file_id)
 
 
     return HTTPOk(body=message)
@@ -101,7 +101,7 @@ def GET(request, api_library):
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
 
-    message = api_library.get_metadata(1234, file_id)
+    message = api_library.get_metadata(request.get("stacksync_user_id"), file_id)
 
     if not message:
         return create_error_response(404, "File or folder not found at the specified path:" + request.path_info)
@@ -126,7 +126,7 @@ def PUT(request, api_library):
         name = args.get('name')
     except:
         name = None
-    message = api_library.put_metadata(1234, file_id, name, parent)
+    message = api_library.put_metadata(request.get("stacksync_user_id"), file_id, name, parent)
 
     # TODO: Move file to different parent
     return HTTPCreated(body=message)
