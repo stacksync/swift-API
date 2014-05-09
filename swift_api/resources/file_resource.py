@@ -53,7 +53,7 @@ def POST(request, api_library):
         if 200 > status >= 300:
             return response
 
-        message_new_version = api_library.post_metadata(1234, name, parent, checksum, file_size, mimetype, chunks)
+        message_new_version = api_library.post_metadata(request.environ["stacksync_user_id"], name, parent, checksum, file_size, mimetype, chunks)
 
         if not message_new_version:
             return create_error_response(404, "Some problem to create a new file")
@@ -70,7 +70,9 @@ def POST(request, api_library):
         return response
 
     '''Without content'''
-    message = api_library.post_metadata(request.get("stacksync_user_id"), name, parent, None, 0, None, None)
+    #using new validating module
+    message = api_library.post_metadata(request.environ["stacksync_user_id"], name, parent, None, 0, None, None)
+
     data = json.loads(message)
     if "error" in data:
         # Create error response
@@ -82,6 +84,7 @@ def POST(request, api_library):
 
     #TODO: Ask TO Cristian when I need to use status 200 or 201
     return response
+
 def DELETE(request, api_library):
 
     try:
@@ -89,10 +92,18 @@ def DELETE(request, api_library):
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
     # get Metadata of the file that had been deleted
-    message = api_library.delete_item(request.get("stacksync_user_id"), file_id)
 
+    message = api_library.delete_item(request.environ["stacksync_user_id"], file_id)
 
-    return HTTPOk(body=message)
+    data = json.loads(message)
+    if "error" in data:
+        # Create error response
+        error = data["error"]
+        response = create_error_response(error, str(json.dumps(data['description'])))
+    else:
+        response = HTTPOk(body=str(json.dumps(data['metadata'])))
+
+    return response
 
 def GET(request, api_library):
 
@@ -101,12 +112,19 @@ def GET(request, api_library):
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
 
-    message = api_library.get_metadata(request.get("stacksync_user_id"), file_id)
+    message = api_library.get_metadata(request.environ["stacksync_user_id"], file_id)
 
     if not message:
         return create_error_response(404, "File or folder not found at the specified path:" + request.path_info)
+    data = json.loads(message)
+    if "error" in data:
+        # Create error response
+        error = data["error"]
+        response = create_error_response(error, str(json.dumps(data['description'])))
+    else:
+        response = HTTPOk(body=str(json.dumps(data['metadata'])))
 
-    return HTTPOk(body=message)
+    return response
 
 def PUT(request, api_library):
 
@@ -126,7 +144,14 @@ def PUT(request, api_library):
         name = args.get('name')
     except:
         name = None
-    message = api_library.put_metadata(request.get("stacksync_user_id"), file_id, name, parent)
+    message = api_library.put_metadata(request.environ["stacksync_user_id"], file_id, name, parent)
 
-    # TODO: Move file to different parent
-    return HTTPCreated(body=message)
+    data = json.loads(message)
+    if "error" in data:
+        # Create error response
+        error = data["error"]
+        response = create_error_response(error, str(json.dumps(data['description'])))
+    else:
+        response = HTTPCreated(body=str(json.dumps(data['metadata'])))
+
+    return response

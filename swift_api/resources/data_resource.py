@@ -61,7 +61,7 @@ def PUT(request, api_library):
     if 200 > status >= 300:
         return response
 
-    message_new_version = api_library.update_data(1234, message["id"], message["parent"], mimetype, file_size, chunks)
+    message_new_version = api_library.update_data(request.environ["stacksync_user_id"], message["id"], message["parent"], mimetype, file_size, chunks)
     if not message_new_version:
         return create_error_response(404, "Some problem to create a new version of file")
 
@@ -83,7 +83,7 @@ def GET(request, api_library):
     except:
         return create_error_response(400, "INCORRECT PARAMETERS", "Supervise parameters, something is wrong")
 
-    metadata = api_library.get_metadata(1234, file_id, include_chunks=True, specific_version=version)  
+    metadata = api_library.get_metadata(request.environ["stacksync_user_id"], file_id, include_chunks=True, specific_version=version)
     if not metadata:
             return create_error_response(404, "File or folder not found at the specified path:" + request.path)
     metadata_dict = json.loads(metadata)

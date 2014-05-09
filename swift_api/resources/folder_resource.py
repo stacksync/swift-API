@@ -28,7 +28,7 @@ def POST(request, api_library):
     if not name:
         return create_error_response(400, "It's mandatory to enter a folder_id.")
     
-    message = api_library.post_folder(1234, name, parent)
+    message = api_library.post_folder(request.environ["stacksync_user_id"], name, parent)
 
     return HTTPCreated(body=message)
 
@@ -39,7 +39,7 @@ def DELETE(request, api_library):
     except:
         return create_error_response(400, "It's mandatory to enter a folder_id.")
     
-    message = api_library.delete_item(123, folder_id)
+    message = api_library.delete_item(request.environ["stacksync_user_id"], folder_id)
     if not message:
         return create_error_response(404, "File or folder not found at the specified path:" + request.path_info)
 
@@ -51,7 +51,7 @@ def GET(request, api_library):
         _, _,_, folder_id = split_path(request.path, 4, 4, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
-    message = api_library.get_metadata(123, folder_id)
+    message = api_library.get_metadata(request.environ["stacksync_user_id"], folder_id)
 
     if not message:
         return create_error_response(404, "File or folder not found at the specified path:" + request.path_info)
@@ -79,6 +79,6 @@ def PUT(request, api_library):
     except:
         name = None
         
-    message = api_library.put_metadata(1234, folder_id, name, parent)
+    message = api_library.put_metadata(request.environ["stacksync_user_id"], folder_id, name, parent)
 
     return HTTPCreated(body=message)

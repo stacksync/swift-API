@@ -15,13 +15,13 @@ def GET(request, api_library):
         return create_error_response(400, "Some problem with path.")
     # if version alone return all versions metadata
     if not version:
-        message = api_library.get_versions(1234, file_id)
+        message = api_library.get_versions(request.environ["stacksync_user_id"], file_id)
         if not message:
             return create_error_response(404, "File or folder not found at the specified path:" + request.path)
 
         return HTTPOk(body=message)
     # if version/id return information about specific version
-    message = api_library.get_metadata(1234, file_id, specific_version=version)
+    message = api_library.get_metadata(request.environ["stacksync_user_id"], file_id, specific_version=version)
     if not message:
         return create_error_response(404, "File or folder not found at the specified path:" + request.path)
 

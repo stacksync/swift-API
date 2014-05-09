@@ -18,7 +18,8 @@ class StackSyncMiddleware(object):
     @wsgify
     def __call__(self, req):
      
-    
+        '''Test user provisional'''
+        req.environ["stacksync_user_id"] = "8a534b8a-2aa6-4b08-b4d9-dfb2556376ab"
         if not self.isAPICall(req.headers.items()):
             return self.app
         

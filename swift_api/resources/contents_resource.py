@@ -20,8 +20,9 @@ def GET(request, api_library):
     except:
         return create_error_response(400, "Some problem with path")
     
-    message = api_library.get_folder_contents(123, folder_id, include_deleted)
+    message = api_library.get_folder_contents(request.environ["stacksync_user_id"], folder_id, include_deleted)
     if not message:
         return create_error_response(404, "File or folder not found at the specified path:" + request.path)
+
 
     return HTTPOk(body=message)
