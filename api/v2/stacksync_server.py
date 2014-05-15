@@ -7,92 +7,54 @@ class StacksyncServerController():
     def __init__(self, serverIp, serverPort, **kwargs):
         
         #Create Sync server connection
-        self.request_id = 123
         self.xml_ip = serverIp
         self.xml = serverPort
         self.rpc_server = xmlrpclib.ServerProxy("http://"+serverIp+':'+str(serverPort))
 
 
-    def get_metadata(self, user, file_id, include_chunks, version, include_list, include_deleted):
+    def get_metadata(self, user, file_id, include_chunks, version):
         #TODO: chunks, version value = b if a > 10 else c
 
         version = "null" if version is None else version
         include_chunks = "false" if include_chunks is False else "true"
-        include_list = "true" if include_list is True else "false"
-        include_deleted = "true" if include_deleted is True else "false"
 
-        response = self.rpc_server.XmlRpcSyncHandler.getMetadata(str(user), str(file_id), str(include_list),
-                                                                 str(include_deleted), str(include_chunks),
+        response = self.rpc_server.XmlRpcSyncHandler.getMetadata(user, str(file_id), str(include_chunks),
                                                                  str(version))
 
         return response
     def get_versions(self, user, file_id):
 
-        response = self.rpcServer.XmlRpcSyncHandler.getVersions(str(user), str(file_id))
+        response = self.rpc_server.XmlRpcSyncHandler.getVersions(user, str(file_id))
         return response
 
     def get_folder_contents(self, user, folder_id, include_deleted):
 
         include_deleted = "true" if include_deleted is True else "false"
+        folder_id = "null" if folder_id is None else folder_id
 
-        response = self.rpc_server.XmlRpcSyncHandler.getFolderContents(str(user), str(folder_id), "true", str(include_deleted)
-                                                                 , "null", "null")
+        response = self.rpc_server.XmlRpcSyncHandler.getFolderContents(str(user), str(folder_id), str(include_deleted))
         return response
-        #TODO: user item in documentation doesn't exist
-        # response ={
-        #            "name":"clients",
-        #            "path":"/documents/clients",
-        #            "id":9873615,
-        #            "status":"NEW",
-        #            "version":1,
-        #            "parent":-348534824681,
-        #            "user":"Adrian",
-        #            "client_modified":"2013-03-08 10:36:41.997",
-        #            "server_modified":"2013-03-08 10:36:41.997",
-        #            "contents":[{
-        #                         "name":"Client1.pdf",
-        #                         "path":"/documents/clients/Client1.pdf",
-        #                         "id":32565632156,
-        #                         "size":775412,
-        #                         "mimetype":"application/pdf",
-        #                         "status":"DELETED",
-        #                         "version":3,
-        #                         "parent":-348534824681,
-        #                         "user":"Adrian",
-        #                         "client_modified":"2013-03-08 10:36:41.997",
-        #                         "server_modified":"2013-03-08 10:36:41.997"
-        #                         },
-        #                        {
-        #                         "name":"Client1.pdf",
-        #                         "path":"/documents/clients/Client1.pdf",
-        #                         "id":32565632156,
-        #                         "size":775412,
-        #                         "mimetype":"application/pdf",
-        #                         "status":"DELETED",
-        #                         "version":3,
-        #                         "parent":-348534824681,
-        #                         "user":"Adrian",
-        #                         "client_modified":"2013-03-08 10:36:41.997",
-        #                         "server_modified":"2013-03-08 10:36:41.997"
-        #                         }
-        #                        ]
-        #            }
-        #
-        # return response
 
     def delete_item(self, user, file_id):
-        response = self.rpcServer.XmlRpcSyncHandler.deleteItem(user, str(file_id))
+        response = self.rpc_server.XmlRpcSyncHandler.deleteItem(user, str(file_id))
 
         return response
 
     def new_folder(self, user, name, parent):
-        response = self.rpcServer.XmlRpcSyncHandler.newFolder(str(user), str(name), str(parent))
+        parent = "null" if parent is None else parent
+
+        response = self.rpc_server.XmlRpcSyncHandler.newFolder(str(user), str(name), str(parent))
 
         return response
 
     def new_file(self, user, name, parent, checksum, file_size, mimetype, chunks):
-        response = self.rpcServer.XmlRpcSyncHandler.newFile(str(user), str(name), str(parent),
-                                                            str(checksum), str(file_size), str(mimetype), str(chunks))
+        chunks = [] if chunks is None else chunks
+        mimetype = "empty" if mimetype is None else mimetype
+        checksum = "0" if checksum is None else checksum
+        parent = "null" if parent is None else parent
+
+        response = self.rpc_server.XmlRpcSyncHandler.newFile(user, str(name), str(parent),
+                                                            str(checksum), str(file_size), str(mimetype), chunks)
 
         return response
 

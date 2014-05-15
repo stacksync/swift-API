@@ -23,7 +23,7 @@ class Api_library(object):
         message = self.server.get_versions(user, fileId)
         return message
 
-    def post_folder(self, user_id, name, parent=None):
+    def new_folder(self, user_id, name, parent=None):
         response = self.server.new_folder(user_id, name, parent)
         return response
 
