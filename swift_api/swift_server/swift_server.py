@@ -42,7 +42,7 @@ class StackSyncMiddleware(object):
     def call_object(self, tail, req):
         controller = __import__('resources'+'.'+tail+'_resource', globals(), locals(), ['GET','POST','DELETE'\
                                                                                         ,'PUT'], -1)
-        response = getattr(controller, req.method)(req, self.api_library)
+        response = getattr(controller, req.method)(req, self.api_library, self.app)
 #         module_ = self.my_import(tail+'_resource')
 #         obj = getattr(module_, tail + '_resource')(req, self.api_library)
         return response

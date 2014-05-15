@@ -11,7 +11,7 @@ from util import *
 from data_handler import DataHandler
 import magic
 
-def PUT(request, api_library):
+def PUT(request, api_library, app):
 
     #take parameters. In this case, the content for update the file
     args = urlparse.parse_qs(request.body, 1)
@@ -50,7 +50,7 @@ def PUT(request, api_library):
 
     url_base = request['PATH_INFO'].replace("/files/"+file_id+"/data", "")
     script_name = request['SCRIPT_NAME']
-    data_handler = DataHandler(request["APP"])
+    data_handler = DataHandler(app)
     response = data_handler.upload_file_chunks(request, url_base, script_name, chunk_maker)
 
     chunks = chunk_maker.hashesList
@@ -76,7 +76,7 @@ def PUT(request, api_library):
 
     return response
 
-def GET(request, api_library):
+def GET(request, api_library, app):
 
     try:
         _, _,_, file_id, _, version, _ = split_path(request.path, 5, 7, False)
@@ -95,7 +95,7 @@ def GET(request, api_library):
     url_base = request['PATH_INFO'].replace("/files/"+file_id+"/data", "")
     script_name = request['SCRIPT_NAME']
     request["QUERY_STRING"] = ""
-    data_handler = DataHandler(request["APP"])
+    data_handler = DataHandler(app)
 
     file_compress_content, status = data_handler.get_chunks(request, url_base, script_name, metadata_dict['chunks'])
 

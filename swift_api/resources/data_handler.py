@@ -2,7 +2,7 @@ __author__ = 'edgar'
 
 from webob import Request, Response
 from swift_server.util import create_error_response
-from swift.common.swob import HTTPCreated
+from swift.common.swob import HTTPCreated, HTTPUnauthorized, HTTPBadRequest
 
 class DataHandler(object):
 
@@ -11,20 +11,21 @@ class DataHandler(object):
         self.response_args = []
 
     def do_start_response(self, *args):
-        self.response_args.extend(*args)
+        self.response_args.extend(args)
 
     def upload_file_chunks(self, env, url_base, script_name, separate_file):
         error = False
         for i in range(len(separate_file.chunks)):
             chunk_name = separate_file.listNames[i-1]
             chunk_content = separate_file.chunks[i-1]
-
-            env['PATH_INFO'] = url_base + "/" + chunk_name
+            '''Revisar aquesta part!!! Handoff requested'''
+            env['PATH_INFO'] = url_base + "/AUTH_5e446d39e4294b57831da7ce3dd0d2c2/edgar/" + chunk_name
             env['SCRIPT_NAME'] = script_name
 
             req = Request(env)
             req.body = chunk_content
             req.content_length = len(chunk_content)
+
             self.app(req.environ, self.do_start_response)
             status = int(self.response_args[0].split()[0])
 
@@ -67,7 +68,7 @@ class DataHandler(object):
         for chunk in chunks:
             file_chunk = "chk-" + str(chunk)
 
-            env['PATH_INFO'] = url_base + '/' + file_chunk
+            env['PATH_INFO'] = url_base + '/AUTH_5e446d39e4294b57831da7ce3dd0d2c2/edgar/' + file_chunk
             env['SCRIPT_NAME'] = script_name
 
             response_file = self.__get_file(env)

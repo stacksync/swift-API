@@ -7,10 +7,10 @@ from swift.common.utils import split_path
 from swift.common.swob import HTTPOk
 from swift_server.util import create_error_response
 
-def GET(request, api_library):
+def GET(request, api_library, app):
 
     try:
-        include_deleted = request.params.get('include_deleted')
+        include_deleted = request.params.get('include_deleted')[0]
         if not include_deleted:
             include_deleted = False
     except:

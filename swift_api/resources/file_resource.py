@@ -12,31 +12,29 @@ from swift.common.utils import split_path
 from swift_server.util import create_error_response
 
 
-def POST(request, api_library):
+def POST(request, api_library, app):
     try:
         args = urlparse.parse_qs(request.body, 1)
     except:
         return create_error_response(400, "Some problem with parameters.")
 
     try:
-        parent = args.get('parent')
+        parent = args.get('parent')[0]
     except:
         parent = None
     try:
-        name = args.get('name')
+        name = args.get('name')[0]
     except:
         name = None
     try:
-        content = args.get('content')
+        content = args.get('content')[0]
     except:
         content = None
 
     if not name:
         return create_error_response(400, "It's mandatory to enter a name.")
 
-    file_size = len(content)
-
-    if file_size > 0:
+    if content is not None:
         chunk_maker = BuildFile(content, [])
         chunk_maker.separate()
 
@@ -53,7 +51,7 @@ def POST(request, api_library):
         if 200 > status >= 300:
             return response
 
-        message_new_version = api_library.post_metadata(request.environ["stacksync_user_id"], name, parent, checksum, file_size, mimetype, chunks)
+        message_new_version = api_library.new_file(request.environ["stacksync_user_id"], name, parent, checksum, file_size, mimetype, chunks)
 
         if not message_new_version:
             return create_error_response(404, "Some problem to create a new file")
@@ -65,13 +63,13 @@ def POST(request, api_library):
             error = data["error"]
             response = create_error_response(error, str(json.dumps(data['description'])))
         else:
-            response = HTTPCreated(body=str(json.dumps(data['metadata'])))
+            response = HTTPCreated(body=str(message_new_version))
 
         return response
 
     '''Without content'''
     #using new validating module
-    message = api_library.post_metadata(request.environ["stacksync_user_id"], name, parent, None, 0, None, None)
+    message = api_library.new_file(request.environ["stacksync_user_id"], name, parent, None, 0, None, None)
 
     data = json.loads(message)
     if "error" in data:
@@ -85,7 +83,7 @@ def POST(request, api_library):
     #TODO: Ask TO Cristian when I need to use status 200 or 201
     return response
 
-def DELETE(request, api_library):
+def DELETE(request, api_library, app):
 
     try:
         _, _,_, file_id = split_path(request.path, 4, 4, False)
@@ -105,7 +103,7 @@ def DELETE(request, api_library):
 
     return response
 
-def GET(request, api_library):
+def GET(request, api_library, app):
 
     try:
         _, _, _, file_id = split_path(request.path, 4, 4, False)
@@ -126,7 +124,7 @@ def GET(request, api_library):
 
     return response
 
-def PUT(request, api_library):
+def PUT(request, api_library, app):
 
     try:
         _, _,_, file_id = split_path(request.path, 4, 4, False)
@@ -137,11 +135,11 @@ def PUT(request, api_library):
     except:
         return create_error_response(400, "Some problem with parameters.")
     try:
-        parent = args.get('parent')
+        parent = args.get('parent')[0]
     except:
         parent = None
     try:
-        name = args.get('name')
+        name = args.get('name')[0]
     except:
         name = None
     message = api_library.put_metadata(request.environ["stacksync_user_id"], file_id, name, parent)

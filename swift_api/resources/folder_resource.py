@@ -10,29 +10,29 @@ from swift.common.utils import split_path
 from swift_server.util import create_error_response
 
 
-def POST(request, api_library):
+def POST(request, api_library, app):
     try:
         args = urlparse.parse_qs(request.body, 1)
     except:
         return create_error_response(400, "Some problem with parameters.")
   
     try:
-        parent = args.get('parent')
+        parent = args.get('parent')[0]
     except:
         parent = None
     try:
-        name = args.get('name')
+        name = args.get('name')[0]
     except:
         name = None
         
     if not name:
         return create_error_response(400, "It's mandatory to enter a folder_id.")
     
-    message = api_library.post_folder(request.environ["stacksync_user_id"], name, parent)
+    message = api_library.new_folder(request.environ["stacksync_user_id"], name, parent)
 
     return HTTPCreated(body=message)
 
-def DELETE(request, api_library):
+def DELETE(request, api_library, app):
 
     try:    
         _, _,_, folder_id = split_path(request.path, 4, 4, False)
@@ -45,13 +45,21 @@ def DELETE(request, api_library):
 
     return HTTPOk(body=message)
 
-def GET(request, api_library):
+def GET(request, api_library, app):
 
     try:    
-        _, _,_, folder_id = split_path(request.path, 4, 4, False)
+        _, _,_, folder_id = split_path(request.path, 3, 4, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
-    message = api_library.get_metadata(request.environ["stacksync_user_id"], folder_id)
+    try:
+        include_deleted = request.params.get('include_deleted')[0]
+        if not include_deleted:
+            include_deleted = False
+    except:
+        include_deleted = False
+
+
+    message = api_library.get_folder_contents(request.environ["stacksync_user_id"], folder_id, include_deleted)
 
     if not message:
         return create_error_response(404, "File or folder not found at the specified path:" + request.path_info)
@@ -59,7 +67,7 @@ def GET(request, api_library):
 
     return HTTPOk(body=message)
 
-def PUT(request, api_library):
+def PUT(request, api_library, app):
 
 #     args = http.parse_qs(request.content.read(), 1)
     try:
@@ -71,11 +79,11 @@ def PUT(request, api_library):
     except:
         return create_error_response(400, "Some problem with parameters.")
     try:
-        parent = args.get('parent')
+        parent = args.get('parent')[0]
     except:
         parent = None
     try:
-        name = args.get('name')
+        name = args.get('name')[0]
     except:
         name = None
         

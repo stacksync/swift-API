@@ -2,9 +2,11 @@ __author__ = 'Edgar Zamora Gomez'
 from webob import Request, Response
 
 import StringIO, zlib
+from cStringIO import StringIO as strIO
 
 from gzip import GzipFile
 from hashlib import sha1
+from time import time
 
 CHUNK_SIZE = 524288
 
@@ -115,6 +117,35 @@ class GzipWrap(object):
     def close(self):
         self.zipper.close()
 
+class GzipWrap2(object):
+    # input is a filelike object that feeds the input
+    def __init__(self, inputStream, filename = None):
+        init = time()
+        self.input = inputStream
+        self.buffer = ''
+        self.zipper = GzipFile(filename, mode = 'wb', fileobj = self)
+        end = time()
+        print 'GzipWrap init', ((end - init)), ' s.'
+
+    def read(self, size=-1):
+        init = time()
+        try:
+            self.zipper.write(self.input)
+        finally:
+            self.zipper.close()
+        end = time()
+        print 'GzipWrap read', ((end - init)), ' s.'
+
+        return self.buffer
+
+    def flush(self):
+        pass
+
+    def write(self, data):
+        self.buffer += data
+
+    def close(self):
+        self.zipper.close()
 
 class BuildFile(object):
     #chunks are the content chunks
@@ -126,7 +157,7 @@ class BuildFile(object):
         self.chunks = chunks
 
     def join(self):
-
+        init = time()
         self.content = ""
         for chunk in self.chunks:
             f = GzipFile('', 'rb', 9, StringIO.StringIO(chunk))
@@ -134,14 +165,19 @@ class BuildFile(object):
             f.close()
 
             self.content += temp
-
+        end = time()
+        print 'join process', (end - init), 's.'
     def adlerHash(self, data):
         return (zlib.adler32(data) & 0xffffffff)
 
     def sha1Hash(self, data):
+        init = time()
         shaHash = sha1()
         shaHash.update(data)
-        return shaHash.hexdigest()
+        result = shaHash.hexdigest()
+        end = time()
+        print 'sha1Hash', ((end - init)), ' s.'
+        return result
 
     def separate(self):
         numChunks = int(len(self.content)/CHUNK_SIZE)
@@ -152,14 +188,20 @@ class BuildFile(object):
             for i in range(numChunks):
                 data = self.content[i*CHUNK_SIZE:(i+1)*CHUNK_SIZE]
                 checksum = self.sha1Hash(data)
-
                 chunkObject = Chunk(checksum)
                 self.listNames.append(chunkObject.getFileName())
                 self.hashesList.append(checksum.upper())
+                #compress chunks process
+                buf = strIO()
+                f = GzipFile(mode='wb', fileobj=buf)
+                try:
+                    f.write(data)
+                finally:
+                    f.close()
+                chunk = buf.getvalue()
 
-                f = GzipWrap(data)
-                chunk = f.read()
-                f.close()
+                # with open(str(checksum), "w") as f:
+                #     f.write(chunk)
 
                 self.chunks.append(chunk)
                 lastIndex = i
