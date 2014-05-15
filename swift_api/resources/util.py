@@ -218,8 +218,10 @@ class BuildFile(object):
             self.listNames.append(chunkObject.getFileName())
             self.hashesList.append(checksum.upper())
 
-            f = GzipWrap(data)
-            chunk = f.read()
-            f.close()
+            try:
+                f.write(data)
+            finally:
+                f.close()
+            chunk = buf.getvalue()
 
             self.chunks.append(chunk)
