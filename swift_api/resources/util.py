@@ -85,67 +85,7 @@ class Chunk(object):
     def getFileName(self):
         return "chk-" + self.checksum
 
-class GzipWrap(object):
-    # input is a filelike object that feeds the input
-    def __init__(self, inputStream, filename = None):
-        self.input = inputStream
-        self.buffer = ''
-        self.zipper = GzipFile(filename, mode = 'wb', fileobj = self)
 
-    def read(self, size=-1):
-        if (size < 0) or len(self.buffer) < size:
-            for s in self.input:
-                self.zipper.write(s)
-                if size > 0 and len(self.buffer) >= size:
-                    self.zipper.flush()
-                    break
-            else:
-                self.zipper.close()
-            if size < 0:
-                ret = self.buffer
-                self.buffer = ''
-        else:
-            ret, self.buffer = self.buffer[:size], self.buffer[size:]
-        return ret
-
-    def flush(self):
-        pass
-
-    def write(self, data):
-        self.buffer += data
-
-    def close(self):
-        self.zipper.close()
-
-class GzipWrap2(object):
-    # input is a filelike object that feeds the input
-    def __init__(self, inputStream, filename = None):
-        init = time()
-        self.input = inputStream
-        self.buffer = ''
-        self.zipper = GzipFile(filename, mode = 'wb', fileobj = self)
-        end = time()
-        print 'GzipWrap init', ((end - init)), ' s.'
-
-    def read(self, size=-1):
-        init = time()
-        try:
-            self.zipper.write(self.input)
-        finally:
-            self.zipper.close()
-        end = time()
-        print 'GzipWrap read', ((end - init)), ' s.'
-
-        return self.buffer
-
-    def flush(self):
-        pass
-
-    def write(self, data):
-        self.buffer += data
-
-    def close(self):
-        self.zipper.close()
 
 class BuildFile(object):
     #chunks are the content chunks
@@ -217,7 +157,8 @@ class BuildFile(object):
             #nameChunk = "chunk-" + str(long(checksum)).rjust(20, '0')
             self.listNames.append(chunkObject.getFileName())
             self.hashesList.append(checksum.upper())
-
+            buf = strIO()
+            f = GzipFile(mode='wb', fileobj=buf)
             try:
                 f.write(data)
             finally:
