@@ -35,7 +35,7 @@ def POST(request, api_library, app):
 def DELETE(request, api_library, app):
 
     try:    
-        _, _,_, folder_id = split_path(request.path, 4, 4, False)
+        _, folder_id = split_path(request.path, 2, 2, False)
     except:
         return create_error_response(400, "It's mandatory to enter a folder_id.")
     
@@ -48,7 +48,7 @@ def DELETE(request, api_library, app):
 def GET(request, api_library, app):
 
     try:    
-        _, _,_, folder_id = split_path(request.path, 3, 4, False)
+        _, folder_id = split_path(request.path, 1, 2, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
     try:
@@ -71,7 +71,7 @@ def PUT(request, api_library, app):
 
 #     args = http.parse_qs(request.content.read(), 1)
     try:
-        _, _,_, folder_id = split_path(request.path, 4, 4, False)
+        _, folder_id = split_path(request.path, 2, 2, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
     try:

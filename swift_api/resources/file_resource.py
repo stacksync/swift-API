@@ -38,14 +38,13 @@ def POST(request, api_library, app):
         chunk_maker = BuildFile(content, [])
         chunk_maker.separate()
 
-        url_base = request['PATH_INFO'].replace("/data", "")
-        script_name = request['SCRIPT_NAME']
-        data_handler = DataHandler(request["APP"])
-        response = data_handler.upload_file_chunks(request, url_base, script_name, chunk_maker)
+        url_base = request['PATH_INFO'].replace("/file", "")
+        data_handler = DataHandler(app)
+        response = data_handler.upload_file_chunks(request.environ, url_base,  chunk_maker)
 
         chunks = chunk_maker.hashesList
         checksum = str((zlib.adler32(content) & 0xffffffff))
-        file_size = str(len(content))
+        file_size = len(content)
         mimetype = magic.from_buffer(content, mime=True)
         status = response.status_int
         if 200 > status >= 300:
@@ -86,7 +85,7 @@ def POST(request, api_library, app):
 def DELETE(request, api_library, app):
 
     try:
-        _, _,_, file_id = split_path(request.path, 4, 4, False)
+        _, file_id = split_path(request.path, 2, 2, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
     # get Metadata of the file that had been deleted
@@ -106,7 +105,7 @@ def DELETE(request, api_library, app):
 def GET(request, api_library, app):
 
     try:
-        _, _, _, file_id = split_path(request.path, 4, 4, False)
+        _, file_id = split_path(request.path, 2, 2, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
 
@@ -127,7 +126,7 @@ def GET(request, api_library, app):
 def PUT(request, api_library, app):
 
     try:
-        _, _,_, file_id = split_path(request.path, 4, 4, False)
+        _, file_id = split_path(request.path, 2, 2, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id. ")
     try:

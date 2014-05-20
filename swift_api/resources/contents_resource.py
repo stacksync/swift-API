@@ -16,7 +16,7 @@ def GET(request, api_library, app):
     except:
         include_deleted = False
     try:    
-        _, _,_, folder_id, _ = split_path(request.path, 5, 5, False)
+        _, folder_id, _ = split_path(request.path, 3, 3, False)
     except:
         return create_error_response(400, "Some problem with path")
     

@@ -25,7 +25,7 @@ def PUT(request, api_library, app):
 
 
     try:
-        _, _,_, file_id, _ = split_path(request.path, 5, 5, False)
+        _, file_id, _ = split_path(request.path, 3, 3, False)
     except:
         return create_error_response(400, "INCORRECT PARAMETERS", "Supervise parameters, the correct form is \
          api/file/file_id/data")
@@ -79,7 +79,7 @@ def PUT(request, api_library, app):
 def GET(request, api_library, app):
 
     try:
-        _, _,_, file_id, _, version, _ = split_path(request.path, 5, 7, False)
+        _, file_id, _, version, _ = split_path(request.path, 3, 5, False)
     except:
         return create_error_response(400, "INCORRECT PARAMETERS", "Supervise parameters, something is wrong")
 

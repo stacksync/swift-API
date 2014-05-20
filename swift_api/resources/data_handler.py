@@ -3,6 +3,7 @@ __author__ = 'edgar'
 from webob import Request, Response
 from swift_server.util import create_error_response
 from swift.common.swob import HTTPCreated, HTTPUnauthorized, HTTPBadRequest
+from swift.common.wsgi import make_subrequest
 
 class DataHandler(object):
 
@@ -13,24 +14,25 @@ class DataHandler(object):
     def do_start_response(self, *args):
         self.response_args.extend(args)
 
-    def upload_file_chunks(self, env, url_base, script_name, separate_file):
+    def upload_file_chunks(self, env, url_base, separate_file):
         error = False
         for i in range(len(separate_file.chunks)):
             chunk_name = separate_file.listNames[i-1]
             chunk_content = separate_file.chunks[i-1]
             '''Revisar aquesta part!!! Handoff requested'''
-            env['PATH_INFO'] = url_base + "/AUTH_5e446d39e4294b57831da7ce3dd0d2c2/edgar/" + chunk_name
-            env['SCRIPT_NAME'] = script_name
+            env_aux = env.copy()
+            new_path = url_base + "/AUTH_5e446d39e4294b57831da7ce3dd0d2c2/edgar/"+chunk_name
+            # env_aux['SCRIPT_NAME'] = script_name
+            del env_aux['HTTP_STACKSYNC_API']
+            seg_req = make_subrequest(env_aux, method='PUT', path=new_path, body=chunk_content, agent=('%(orig)s '))
 
-            req = Request(env)
-            req.body = chunk_content
-            req.content_length = len(chunk_content)
 
-            self.app(req.environ, self.do_start_response)
+            # req = Request(env)
+            # req.body = chunk_content
+            # req.content_length = len(chunk_content)
+            seg_resp = seg_req.get_response(self.app)
+            print 'response', seg_resp
             status = int(self.response_args[0].split()[0])
-
-            if 200 > status >= 300:
-                break
 
         if(error):
             response = create_error_response(500, "Internal Server Error")
