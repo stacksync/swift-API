@@ -35,7 +35,7 @@ def POST(request, api_library, app):
 def DELETE(request, api_library, app):
 
     try:    
-        _, folder_id = split_path(request.path, 2, 2, False)
+        _, _, folder_id = split_path(request.path, 3, 3, False)
     except:
         return create_error_response(400, "It's mandatory to enter a folder_id.")
     
@@ -48,18 +48,12 @@ def DELETE(request, api_library, app):
 def GET(request, api_library, app):
 
     try:    
-        _, folder_id = split_path(request.path, 1, 2, False)
+        _, _, folder_id = split_path(request.path, 2, 3, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
-    try:
-        include_deleted = request.params.get('include_deleted')[0]
-        if not include_deleted:
-            include_deleted = False
-    except:
-        include_deleted = False
 
 
-    message = api_library.get_folder_contents(request.environ["stacksync_user_id"], folder_id, include_deleted)
+    message = api_library.get_metadata(request.environ["stacksync_user_id"], folder_id)
 
     if not message:
         return create_error_response(404, "File or folder not found at the specified path:" + request.path_info)
@@ -71,7 +65,7 @@ def PUT(request, api_library, app):
 
 #     args = http.parse_qs(request.content.read(), 1)
     try:
-        _, folder_id = split_path(request.path, 2, 2, False)
+        _, _, folder_id = split_path(request.path, 3, 3, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
     try:

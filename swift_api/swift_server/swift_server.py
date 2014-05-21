@@ -28,7 +28,7 @@ class StackSyncMiddleware(object):
             return response
 
                 #Redirect the petition to resource using url information
-        head, tail = os.path.split(req.path)
+        head, tail = os.path.split(req.environ['PATH_INFO'])
         if tail == 'data'or tail == 'versions'or tail == 'file' or tail == 'folder' or tail == 'contents':
             return self.call_object(tail, req)
         else:

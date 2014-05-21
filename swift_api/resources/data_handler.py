@@ -3,7 +3,7 @@ __author__ = 'edgar'
 from webob import Request, Response
 from swift_server.util import create_error_response
 from swift.common.swob import HTTPCreated, HTTPUnauthorized, HTTPBadRequest
-from swift.common.wsgi import make_subrequest
+from swift.common.wsgi import make_pre_authed_request
 
 class DataHandler(object):
 
@@ -22,17 +22,17 @@ class DataHandler(object):
             '''Revisar aquesta part!!! Handoff requested'''
             env_aux = env.copy()
             new_path = url_base + "/AUTH_5e446d39e4294b57831da7ce3dd0d2c2/edgar/"+chunk_name
-            # env_aux['SCRIPT_NAME'] = script_name
+            env_aux['SCRIPT_NAME'] = "" 
+            print 'new_path', new_path
             del env_aux['HTTP_STACKSYNC_API']
-            seg_req = make_subrequest(env_aux, method='PUT', path=new_path, body=chunk_content, agent=('%(orig)s '))
+            seg_req = make_pre_authed_request(env_aux, method='PUT', path=new_path, body=chunk_content, agent=('%(orig)s '))
 
 
             # req = Request(env)
             # req.body = chunk_content
             # req.content_length = len(chunk_content)
             seg_resp = seg_req.get_response(self.app)
-            print 'response', seg_resp
-            status = int(self.response_args[0].split()[0])
+            print 'response', seg_resp.status
 
         if(error):
             response = create_error_response(500, "Internal Server Error")
@@ -41,44 +41,22 @@ class DataHandler(object):
 
         return response
 
-    def __get_file(self, env):
-        self.response_args = []
-
-        app_iterFile = self.app(env, self.do_start_response)
-        status_file  = int(self.response_args[0].split()[0])
-        headers_file  = dict(self.response_args[1])
-        if 200 <= status_file < 300:
-            new_headers_file = {}
-            for key, val in headers_file.iteritems():
-                _key = key.lower()
-                if _key.startswith('x-object-meta-'):
-                    new_headers_file['x-amz-meta-' + key[14:]] = val
-                elif _key in ('content-length', 'content-type', 'content-encoding', 'etag', 'last-modified'):
-                    new_headers_file[key] = val
-
-            response_file = Response(status=status_file, headers=new_headers_file, app_iter=app_iterFile)
-        elif status_file == 401:
-            response_file = HTTPUnauthorized()
-        else:
-            response_file = HTTPBadRequest()
-
-        return response_file
-
-    def get_chunks(self, env, url_base, script_name, chunks):
+    def get_chunks(self, env, url_base, chunks):
         file_compress_content = []
         status_file = 200
         for chunk in chunks:
             file_chunk = "chk-" + str(chunk)
+            env_aux = env.copy()
 
-            env['PATH_INFO'] = url_base + '/AUTH_5e446d39e4294b57831da7ce3dd0d2c2/edgar/' + file_chunk
-            env['SCRIPT_NAME'] = script_name
+            new_path = url_base + '/AUTH_5e446d39e4294b57831da7ce3dd0d2c2/edgar/' + file_chunk
+            seg_req = make_pre_authed_request(env, method='GET', path=new_path, body="", agent=('%(orig)s '))
+            seg_resp = seg_req.get_response(self.app)
 
-            response_file = self.__get_file(env)
-            status_file = response_file.status_int
-            if 200 <= status_file < 300:
-                file_compress_content.append(response_file.body)
+            if 200 <= seg_resp.status_int < 300:
+                file_compress_content.append(seg_resp.body)
             else:
                 file_compress_content = []
                 break
 
-        return file_compress_content, status_file
+        return file_compress_content, seg_resp.status_int
+

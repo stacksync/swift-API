@@ -14,31 +14,30 @@ from swift_server.util import create_error_response
 
 def POST(request, api_library, app):
     try:
-        args = urlparse.parse_qs(request.body, 1)
+        params = request.params
+        content = request.body
+	print 'content', content
     except:
         return create_error_response(400, "Some problem with parameters.")
 
     try:
-        parent = args.get('parent')[0]
+        parent = params.get('parent')
     except:
         parent = None
     try:
-        name = args.get('name')[0]
+        name = params.get('name')
     except:
         name = None
-    try:
-        content = args.get('content')[0]
-    except:
-        content = None
 
     if not name:
         return create_error_response(400, "It's mandatory to enter a name.")
 
+    print 'params', params, name, parent
     if content is not None:
         chunk_maker = BuildFile(content, [])
         chunk_maker.separate()
 
-        url_base = request['PATH_INFO'].replace("/file", "")
+        url_base = request.environ['PATH_INFO'].replace("/file", "")
         data_handler = DataHandler(app)
         response = data_handler.upload_file_chunks(request.environ, url_base,  chunk_maker)
 
@@ -85,7 +84,7 @@ def POST(request, api_library, app):
 def DELETE(request, api_library, app):
 
     try:
-        _, file_id = split_path(request.path, 2, 2, False)
+        _, _, file_id = split_path(request.path, 3, 3, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
     # get Metadata of the file that had been deleted
@@ -98,14 +97,14 @@ def DELETE(request, api_library, app):
         error = data["error"]
         response = create_error_response(error, str(json.dumps(data['description'])))
     else:
-        response = HTTPOk(body=str(json.dumps(data['metadata'])))
+        response = HTTPOk(body=str(message))
 
     return response
 
 def GET(request, api_library, app):
 
     try:
-        _, file_id = split_path(request.path, 2, 2, False)
+        _, _, file_id = split_path(request.path, 3, 3, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id.")
 
@@ -119,14 +118,14 @@ def GET(request, api_library, app):
         error = data["error"]
         response = create_error_response(error, str(json.dumps(data['description'])))
     else:
-        response = HTTPOk(body=str(json.dumps(data['metadata'])))
+        response = HTTPOk(body=str(message))
 
     return response
 
 def PUT(request, api_library, app):
 
     try:
-        _, file_id = split_path(request.path, 2, 2, False)
+        _, _, file_id = split_path(request.path, 3, 3, False)
     except:
         return create_error_response(400, "It's mandatory to enter a file_id. ")
     try:
@@ -149,6 +148,6 @@ def PUT(request, api_library, app):
         error = data["error"]
         response = create_error_response(error, str(json.dumps(data['description'])))
     else:
-        response = HTTPCreated(body=str(json.dumps(data['metadata'])))
+        response = HTTPCreated(body=str(message))
 
     return response
