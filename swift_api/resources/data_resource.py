@@ -37,7 +37,7 @@ def PUT(request, api_library, app):
     else:
         response = HTTPCreated(body=message)
     # Create new version to save old content version
-    #TODO: Define mimetype, size and chunk
+
 
     chunk_maker = BuildFile(content, [])
     chunk_maker.separate()
@@ -93,7 +93,8 @@ def GET(request, api_library, app):
         if len(file_compress_content) > 0:
             join_file = BuildFile("", file_compress_content)
             join_file.join()
-            return HTTPOk(body=join_file.content)
+            headers = {'Content-Type': metadata_dict['mimetype']}
+            return HTTPOk(body=join_file.content, headers=headers   )
         elif len(metadata_dict['chunks']) == 0:
             return HTTPOk(body="")
     else:
