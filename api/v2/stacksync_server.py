@@ -1,5 +1,5 @@
 import xmlrpclib
-
+import json
 class StacksyncServerController():
     """
     Handles requests on objects
@@ -58,34 +58,22 @@ class StacksyncServerController():
 
         return response
 
-    def update_data(self, user, file_id, checksum, size,  mimetype, chunk):
+    def update_data(self, user, file_id, checksum, size,  mimetype, chunks):
+        chunks = [] if chunks is None else chunks
 
         """When u update the data content, it's necessary to create a new file version metadata
          to guarantee the version control. Using old methods, we will use the method new_file, to implement
          this requirement"""
         #TODO: Define this method, how to create a new version
+        response = self.rpc_server.XmlRpcSyncHandler.updateData(user, str(file_id), str(checksum), str(size), str(mimetype), chunks)
 
-        response = {
-                    "name":"Client1.pdf",
-                    "path":"/documents/clients/Client1.pdf",
-                    "id":32565632156,
-                    "parent":-348534824681,
-                    "user":"Adrian"
-        }
         return response
 
     def update_metadata(self, user, file_id, name, parent):
-        response = {
-         "name":"Winter2012_renamed.jpg",
-        "path":"/documents/clients/Client1.pdf",
-         "id":32565632156,
-         "size":775412,
-         "mimetype":"application/pdf",
-         "status":"CHANGED",
-         "version":2,
-         "parent":12386548974,
-         "user":"Adrian",
-         "client_modified":"2013-03-08 10:36:41.997",
-         "server_modified":"2013-03-08 10:36:41.997"
-        }
+        parent = "null" if parent is None else parent
+        name = "null" if name is None else name
+        if not parent and not name:
+            return json.dumps({'error':400, 'description':'BadRequest: Nothing to update'})
+        response = self.rpc_server.XmlRpcSyncHandler.updateMetadata(user, str(file_id), str(name), str(parent))
+
         return response
