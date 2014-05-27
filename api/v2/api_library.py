@@ -46,3 +46,6 @@ class Api_library(object):
             return "{'error':404,'description':'BadRequest: Nothing to update'}"
         message = self.server.update_metadata(user_id, file_id, name, parent)
         return message
+    def get_workspace_info(self, user_id, item_id):
+        message = self.server.get_workspace_info(user_id, item_id)
+        return message

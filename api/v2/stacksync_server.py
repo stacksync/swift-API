@@ -69,6 +69,11 @@ class StacksyncServerController():
         parent = "null" if parent is None else parent
         name = "null" if name is None else name
 
-        response = self.rpc_server.XmlRpcSyncHandler.updateMetadata(user, str(file_id), str(name), str(parent))
+        response = self.rpc_server.XmlRpcSyncHandler.updateMetadata(str(user), str(file_id), str(name), str(parent))
 
+        return response
+
+    def get_workspace_info(self, user, item_id):
+        item_id = "null" if item_id is None else item_id
+        response = self.rpc_server.XmlRpcSyncHandler.getWorkspaceInfo(str(user), str(item_id))
         return response
