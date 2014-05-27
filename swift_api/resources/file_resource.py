@@ -16,7 +16,7 @@ def POST(request, api_library, app):
     try:
         params = request.params
         content = request.body
-	print 'content', content
+
     except:
         return create_error_response(400, "Some problem with parameters.")
 
@@ -32,29 +32,35 @@ def POST(request, api_library, app):
     if not name:
         return create_error_response(400, "It's mandatory to enter a name.")
 
-    print 'params', params, name, parent
     if content is not None:
         chunk_maker = BuildFile(content, [])
         chunk_maker.separate()
 
         url_base = request.environ['PATH_INFO'].replace("/file", "")
         data_handler = DataHandler(app)
-        response = data_handler.upload_file_chunks(request.environ, url_base,  chunk_maker)
+
+        container_response = api_library.get_workspace_info(request.environ["stacksync_user_id"], parent)
+        container_response = json.loads(container_response)
+        if 'error' in container_response:
+            error = container_response["error"]
+            return create_error_response(error, str(json.dumps(container_response['description'])))
+
+        response = data_handler.upload_file_chunks(request.environ, url_base, chunk_maker, container_response['swift_container'])
 
         chunks = chunk_maker.hashesList
         checksum = str((zlib.adler32(content) & 0xffffffff))
         file_size = len(content)
         mimetype = magic.from_buffer(content, mime=True)
-        status = response.status_int
-        if 200 > status >= 300:
+
+        if 200 > response.status_int >= 300:
             return response
 
-        message_new_version = api_library.new_file(request.environ["stacksync_user_id"], name, parent, checksum, file_size, mimetype, chunks)
+        message_new_version = api_library.new_file(request.environ["stacksync_user_id"], name, parent, checksum,
+                                                   file_size, mimetype, chunks)
 
         if not message_new_version:
             return create_error_response(404, "Some problem to create a new file")
 
-        # TODO: Using name and full path update the file into DB, using new version.
         data = json.loads(message_new_version)
         if "error" in data:
             # Create error response
@@ -76,13 +82,10 @@ def POST(request, api_library, app):
         response = create_error_response(error, str(json.dumps(data['description'])))
     else:
         response = HTTPCreated(body=message)
-    #TODO: create a file using name of arguments
-
-    #TODO: Ask TO Cristian when I need to use status 200 or 201
     return response
 
-def DELETE(request, api_library, app):
 
+def DELETE(request, api_library, app):
     try:
         _, _, file_id = split_path(request.path, 3, 3, False)
     except:
@@ -101,8 +104,8 @@ def DELETE(request, api_library, app):
 
     return response
 
-def GET(request, api_library, app):
 
+def GET(request, api_library, app):
     try:
         _, _, file_id = split_path(request.path, 3, 3, False)
     except:
@@ -112,6 +115,7 @@ def GET(request, api_library, app):
 
     if not message:
         return create_error_response(404, "File or folder not found at the specified path:" + request.path_info)
+
     data = json.loads(message)
     if "error" in data:
         # Create error response
@@ -122,8 +126,8 @@ def GET(request, api_library, app):
 
     return response
 
-def PUT(request, api_library, app):
 
+def PUT(request, api_library, app):
     try:
         _, _, file_id = split_path(request.path, 3, 3, False)
     except:
@@ -140,6 +144,7 @@ def PUT(request, api_library, app):
         name = args.get('name')[0]
     except:
         name = None
+
     message = api_library.put_metadata(request.environ["stacksync_user_id"], file_id, name, parent)
 
     data = json.loads(message)

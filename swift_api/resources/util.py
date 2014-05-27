@@ -30,7 +30,6 @@ class BuildFile(object):
         self.chunks = chunks
 
     def join(self):
-        init = time()
         self.content = ""
         for chunk in self.chunks:
             f = GzipFile('', 'rb', 9, StringIO.StringIO(chunk))
@@ -38,18 +37,13 @@ class BuildFile(object):
             f.close()
 
             self.content += temp
-        end = time()
-        print 'join process', (end - init), 's.'
     def adlerHash(self, data):
         return (zlib.adler32(data) & 0xffffffff)
 
     def sha1Hash(self, data):
-        init = time()
         shaHash = sha1()
         shaHash.update(data)
         result = shaHash.hexdigest()
-        end = time()
-        print 'sha1Hash', ((end - init)), ' s.'
         return result
 
     def separate(self):
