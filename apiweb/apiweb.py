@@ -19,14 +19,14 @@ import string, json, random
 import xmlrpclib
 import magic
 
-from webob import Request, Response
 from swift.common.swob import HTTPBadRequest, HTTPAccepted, HTTPOk, HTTPCreated, HTTPInternalServerError,\
     HTTPNotFound, HTTPServerError, HTTPUnauthorized, HTTPForbidden,\
-    HTTPMethodNotAllowed, wsgify
-from swift.common.utils import get_param
+    HTTPMethodNotAllowed, wsgify, Request, Response
+from swift.common.request_helpers import get_param
 from linecache import updatecache
 from gzip import GzipFile
 from hashlib import sha1
+from swift.common.wsgi import make_pre_authed_request
 
 CHUNK_SIZE = 524288
 
@@ -39,14 +39,20 @@ class Chunk(object):
         return "chk-" + self.checksum
 
 
+# TODO: This is not useful
 class Controller(object):
     def __init__(self, app):
         self.app = app
         self.response_args = []
 
-    def do_start_response(self, *args):
-        self.response_args.extend(args)
-
+    def do_start_response(self, status, headers, exc_info=None):
+        """
+        Saves response info without sending it to the remote client.
+        Uses the same semantics as the usual WSGI start_response.
+        """
+        self._response_status = status
+        self._response_headers = headers
+        self._response_exc_info = exc_info
 
 class GzipWrap(object):
     # input is a filelike object that feeds the input
@@ -254,32 +260,33 @@ class HttpHandler(Controller):
     
     def __getFile(self, env):
         self.response_args = []
-        
-        app_iterFile = self.app(env, self.do_start_response)
-        statusFile  = int(self.response_args[0].split()[0])
-        headersFile  = dict(self.response_args[1])
-        if 200 <= statusFile  < 300:
+
+        subrequest = make_pre_authed_request(env, agent=('%(orig)s '))       
+        response = subrequest.get_response(self.app)
+
+        if 200 <= response.status_int  < 300:
+            pass
+        #    new_hdrsFile = {}
+        #    for key, val in headersFile.iteritems():
+        #        _key = key.lower()
+        #        if _key.startswith('x-object-meta-'):
+        #            new_hdrsFile['x-amz-meta-' + key[14:]] = val
+        #        elif _key in ('content-length', 'content-type', 'content-encoding', 'etag', 'last-modified'):
+        #            new_hdrsFile[key] = val
             
-            new_hdrsFile = {}
-            for key, val in headersFile.iteritems():
-                _key = key.lower()
-                if _key.startswith('x-object-meta-'):
-                    new_hdrsFile['x-amz-meta-' + key[14:]] = val
-                elif _key in ('content-length', 'content-type', 'content-encoding', 'etag', 'last-modified'):
-                    new_hdrsFile[key] = val
-            
-            responseFile = Response(status=statusFile, headers=new_hdrsFile, app_iter=app_iterFile)        
-        elif statusFile == 401:
-            responseFile = HTTPUnauthorized()
+        #    responseFile = Response(status=statusFile, headers=new_hdrsFile, app_iter=app_iterFile)        
+        elif response.status_int == 401:
+            response = HTTPUnauthorized()
         else:
-            responseFile = HTTPBadRequest()
+            response = HTTPBadRequest()
             
-        return responseFile
+        return response
     
     
     def __getChunks(self, env, urlBase, scriptName, chunks):    
         fileCompressContent = []
         statusFile = 200
+        
         for chunk in chunks: 
             fileChunk = "chk-" + str(chunk)
                 
@@ -363,13 +370,10 @@ class HttpHandler(Controller):
                               
             env['PATH_INFO'] = urlBase + "/" + chunkName
             env['SCRIPT_NAME'] = scriptName
-            
-            req = Request(env)
-            req.body = chunkContent
-            req.content_length = len(chunkContent)
-                        
-            self.app(req.environ, self.do_start_response)
-            status = int(self.response_args[0].split()[0])                    
+
+            subrequest = make_pre_authed_request(env, body=chunkContent, agent=('%(orig)s '))
+            response = subrequest.get_response(self.app)            
+            status = response.status_int                
     
             if 200 > status >= 300:
                 break
