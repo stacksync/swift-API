@@ -45,17 +45,12 @@ class StackSyncMiddleware(object):
 
         return response
 
-    def authorize(req):
+    def authorize(self, req):
         if 'swift.authorize' in req.environ:
             resp = req.environ['swift.authorize'](req)
-            if not resp:
-                # No resp means authorized, no delayed recheck required.
-                del req.environ['swift.authorize']
-            else:
-                # Response indicates denial, but we might delay the denial
-                # and recheck later. If not delayed, return the error now.
-                response = HTTPUnauthorized()
-                return response
+            del req.environ['swift.authorize']
+            return resp
+        return HTTPUnauthorized()
 
     def isAPICall(self, headers):
 
