@@ -16,10 +16,12 @@ class DataHandler(object):
 
     def upload_file_chunks(self, env, url_base, separate_file, container):
         error = False
+        self.app.logger.info('StackSync API: upload_file_chunks: url_base: %s container: %s', str(url_base),
+                        str(container))
         for i in range(len(separate_file.chunks)):
             chunk_name = separate_file.listNames[i-1]
             chunk_content = separate_file.chunks[i-1]
-            '''Revisar aquesta part!!! Handoff requested'''
+
             env_aux = env.copy()
             new_path = url_base + "/"+env['stacksync_user_account']+"/"+container+"/" +chunk_name
             env_aux['SCRIPT_NAME'] = "" 
@@ -28,11 +30,13 @@ class DataHandler(object):
             seg_req = make_pre_authed_request(env_aux, method='PUT', path=new_path, body=chunk_content, agent=('%(orig)s '))
 
             seg_resp = seg_req.get_response(self.app)
-            if 200 > seg_resp.status_int >= 300:
+            if 200 <= seg_resp.status_int < 300:
                 error = True
                 break
 
         if error:
+            self.app.logger.error('StackSync API: upload_file_chunks: status: %s description: Internal Server Error',
+                                  seg_resp.status)
             response = create_error_response(500, "Internal Server Error")
         else:
             response = HTTPCreated(body="OK")
@@ -42,6 +46,9 @@ class DataHandler(object):
     def get_chunks(self, env, url_base, chunks, container):
         file_compress_content = []
         status_file = 200
+
+        self.app.logger.info('StackSync API: upload_file_chunks: url_base: %s chunks: %s container: %s', str(url_base),
+                             str(chunks), str(container))
         for chunk in chunks:
             file_chunk = "chk-" + str(chunk)
 

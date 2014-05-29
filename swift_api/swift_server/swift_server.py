@@ -6,7 +6,7 @@ Created on 17/02/2014
 import sys, os
 from swift.common.swob import wsgify, HTTPUnauthorized
 from v2.api_library import Api_library
-
+from swift.common.utils import get_logger
 
 
 
@@ -17,10 +17,11 @@ class StackSyncMiddleware(object):
         self.conf = conf
         #Use Api_Library module with dummy or stacksync sever to handle the metadata
         self.api_library = Api_library('stack')
+        self.app.logger = get_logger(conf, log_route='stacksync_api')
 
     @wsgify
     def __call__(self, req):
-
+        self.app.logger.info('StackSync API: __call__: %r', req.environ)
         if not self.isAPICall(req.headers.items()):
             return self.app
         response = self.authorize(req)
@@ -41,11 +42,15 @@ class StackSyncMiddleware(object):
     def call_object(self, tail, req):
         controller = __import__('resources' + '.' + tail + '_resource', globals(), locals(), ['GET', 'POST', 'DELETE' \
             , 'PUT'], -1)
+
+        self.app.logger.info('StackSync API: call_object: method info: %s path info: %s', req.method, req.path)
+
         response = getattr(controller, req.method)(req, self.api_library, self.app)
 
         return response
 
     def authorize(self, req):
+        self.app.logger.info('StackSync API: authorize: path info: %s', req.path)
         if 'swift.authorize' in req.environ:
             resp = req.environ['swift.authorize'](req)
             del req.environ['swift.authorize']
