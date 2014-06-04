@@ -1,12 +1,11 @@
 from setuptools import setup
+import stacksync_api_v2
 
-import v2
-
-setup(name='v2',
-      version=v2.version,
-      description='StackSync API WEB module for OpenStack Swift',
-      author='AST Research Group',
+setup(name='stacksync_api_v2',
+      version=stacksync_api_v2.__version__,
+      description='StackSync API v2 library',
+      author='The StackSync Team',
       url='http://stacksync.org',
-      packages=['v2'],
+      packages=['stacksync_api_v2'],
       requires=['swift(>=1.4)']
       )

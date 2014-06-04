@@ -1,5 +1,6 @@
 import xmlrpclib
 import json
+
 class StacksyncServerController():
     """
     Handles requests on objects
@@ -15,7 +16,7 @@ class StacksyncServerController():
     def get_metadata(self, user, file_id, include_chunks, version):
         version = "null" if version is None else version
         include_chunks = "false" if include_chunks is False else "true"
-        file_id = "null" if str(file_id) == "root" else file_id
+        file_id = "null" if str(file_id) == "0" else file_id
 
         response = self.rpc_server.XmlRpcSyncHandler.getMetadata(user, str(file_id), str(include_chunks),
                                                                  str(version))
@@ -30,7 +31,7 @@ class StacksyncServerController():
     def get_folder_contents(self, user, folder_id, include_deleted):
 
         include_deleted = "true" if include_deleted is True else "false"
-        folder_id = "null" if str(folder_id) == 'root' else folder_id
+        folder_id = "null" if str(folder_id) == '0' else folder_id
 
         response = self.rpc_server.XmlRpcSyncHandler.getFolderContents(str(user), str(folder_id), str(include_deleted))
         return response
@@ -41,7 +42,7 @@ class StacksyncServerController():
         return response
 
     def new_folder(self, user, name, parent):
-        parent = "null" if parent is None else parent
+        parent = "null" if parent is None or str(parent) is "0" else parent
 
         response = self.rpc_server.XmlRpcSyncHandler.newFolder(str(user), str(name), str(parent))
 
@@ -51,7 +52,7 @@ class StacksyncServerController():
         chunks = [] if chunks is None else chunks
         mimetype = "empty" if mimetype is None else mimetype
         checksum = "0" if checksum is None else checksum
-        parent = "null" if parent is None else parent
+        parent = "null" if parent is None or str(parent) is "0" else parent
 
         response = self.rpc_server.XmlRpcSyncHandler.newFile(user, str(name), str(parent),
                                                             str(checksum), str(file_size), str(mimetype), chunks)
@@ -66,7 +67,7 @@ class StacksyncServerController():
         return response
 
     def update_metadata(self, user, file_id, name, parent):
-        parent = "null" if parent is None else parent
+        parent = "null" if parent is None or str(parent) is "0" else parent
         name = "null" if name is None else name
 
         response = self.rpc_server.XmlRpcSyncHandler.updateMetadata(str(user), str(file_id), str(name), str(parent))
