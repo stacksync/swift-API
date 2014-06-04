@@ -1,6 +1,6 @@
 from swift.common.utils import split_path
 from swift.common.swob import HTTPOk
-from swift_server.util import create_error_response
+from stacksync_api_swift.util import create_error_response
 
 def GET(request, api_library, app):
 

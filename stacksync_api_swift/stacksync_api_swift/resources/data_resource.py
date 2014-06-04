@@ -1,9 +1,9 @@
 from swift.common.utils import split_path
 from swift.common.swob import HTTPCreated, HTTPOk
-from swift_server.util import create_error_response
+from stacksync_api_swift.util import create_error_response
 import json, urlparse
 from util import *
-from data_handler import DataHandler
+from stacksync_api_swift.resources.data_handler import DataHandler
 import magic
 
 

@@ -1,5 +1,5 @@
 from webob import Request, Response
-from swift_server.util import create_error_response
+from stacksync_api_swift.util import create_error_response
 from swift.common.swob import HTTPCreated, HTTPUnauthorized, HTTPBadRequest
 from swift.common.wsgi import make_pre_authed_request
 

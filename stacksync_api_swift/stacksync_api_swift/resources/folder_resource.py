@@ -1,26 +1,28 @@
 import urlparse
+import json
 from swift.common.swob import HTTPCreated, HTTPOk
 from swift.common.utils import split_path
-from swift_server.util import create_error_response
+from stacksync_api_swift.util import create_error_response
 
 
 def POST(request, api_library, app):
     try:
-        args = urlparse.parse_qs(request.body, 1)
+        args = json.loads(request.body)
     except:
-		app.logger.error('StackSync API: Could not parse arguments: %s ', str(request.body))
+        app.logger.error('StackSync API: Could not parse arguments: %s ', str(request.body))
         return create_error_response(400, "Could not parse arguments.")
   
     try:
-        parent = args.get('parent')[0]
+        parent = args['parent']
     except:
         parent = None
     try:
-        name = args.get('name')[0]
+        name = args['name']
     except:
         name = None
 
-    app.logger.info('StackSync API: folder_resource POST: path info: %s ', str(request.path_info))
+    app.logger.info('StackSync API: parent: %s, name %s' % (parent, name))
+    app.logger.info('StackSync API: folder_resource POST: path info: %s, body=%s' % (str(request.path_info), request.body))
 
     if not name:
         app.logger.error("StackSync API: folder_resource POST: error: 400. description: Folder name not found.")
