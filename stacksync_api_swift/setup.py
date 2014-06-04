@@ -1,16 +1,13 @@
-__author__ = 'Edgar Zamora Gomez'
-
 from setuptools import setup
+import stacksync_api_swift
 
-import swift_server
-
-setup(name='stacksync-api',
-      version=swift_server.version,
-      description='StackSync API WEB module for OpenStack Swift',
-      author='AST Research Group',
-      author_email='edgar.zamora@urv.cat',
-      url='',
-      packages=['swift_server', 'resources'],
-      requires=['swift(>=1.4)','stacksync_api_v2(==2.0)'],
+setup(name='stacksync_api_swift',
+      version=stacksync_api_swift.__version__,
+      description='StackSync API module for OpenStack Swift',
+      author='The StackSync Team',
+      url='http://stacksync.org',
+      packages=['stacksync_api_swift', 'stacksync_api_swift.resources'],
+      requires=['swift(>=1.4)'],
+      install_requires=['stacksync_api_v2>=2.0', 'python-magic>=0.4.6'],
       entry_points={'paste.filter_factory':
-                        ['stacksync_api=swift_server.swift_server:filter_factory']})
+                        ['stacksync_api=stacksync_api_swift.stacksync_api_swift:filter_factory']})

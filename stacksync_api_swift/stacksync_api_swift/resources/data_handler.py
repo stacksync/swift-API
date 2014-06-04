@@ -1,5 +1,3 @@
-__author__ = 'edgar'
-
 from webob import Request, Response
 from swift_server.util import create_error_response
 from swift.common.swob import HTTPCreated, HTTPUnauthorized, HTTPBadRequest

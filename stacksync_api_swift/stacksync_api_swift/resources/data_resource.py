@@ -1,8 +1,3 @@
-'''
-Created on 05/03/2014
-
-@author: Edgar Zamora Gomez
-'''
 from swift.common.utils import split_path
 from swift.common.swob import HTTPCreated, HTTPOk
 from swift_server.util import create_error_response

@@ -1,8 +1,3 @@
-'''
-Created on 3/03/2014
-
-@author: Edgar Zamora Gomez
-'''
 import json, urlparse
 from util import *
 from data_handler import DataHandler

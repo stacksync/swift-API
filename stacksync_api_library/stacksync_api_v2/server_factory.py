@@ -1,15 +1,12 @@
-'''
-Created on 04/02/2014
+from stacksync_api_v2.stacksync_server import StacksyncServerController
+from stacksync_api_v2.dummy_server import DummyServerController
 
-@author: Edgar Zamora Gomez
-'''
-
-from stacksync_server import StacksyncServerController
-from dummy_server import DummyServerController
-STACKSYNC = 'stack'
+STACKSYNC = 'stacksync'
 DUMMY = 'dummy'
-class server_factory(object):
-    def new_server(self, kind):
+
+class ServerControllerFactory(object):
+
+    def get_server(self, kind):
         if kind == STACKSYNC:
             return StacksyncServerController("localhost", 61234)
         elif kind == DUMMY:

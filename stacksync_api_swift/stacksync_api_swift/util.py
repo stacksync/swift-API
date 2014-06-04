@@ -1,8 +1,3 @@
-'''
-Created on 05/03/2014
-
-@author: Edgar Zamora Gomez
-'''
 from swift.common.swob import wsgify, HTTPForbidden, HTTPUnauthorized, HTTPBadRequest, HTTPNotFound,\
 HTTPMethodNotAllowed, HTTPServerError
 

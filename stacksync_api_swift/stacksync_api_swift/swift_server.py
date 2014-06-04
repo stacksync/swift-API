@@ -1,23 +1,18 @@
-'''
-Created on 17/02/2014
-
-@author: Edgar Zamora Gomez
-'''
 import sys, os
 from swift.common.swob import wsgify, HTTPUnauthorized
-from v2.api_library import Api_library
+from stacksync_api_v2.api_library import StackSyncApi
 from swift.common.utils import get_logger
 
 
-
-
 class StackSyncMiddleware(object):
+
     def __init__(self, app, conf, *args, **kwargs):
         self.app = app
         self.conf = conf
         #Use Api_Library module with dummy or stacksync sever to handle the metadata
-        self.api_library = Api_library('stack')
+        self.api_library = StackSyncApi('stacksync')
         self.app.logger = get_logger(conf, log_route='stacksync_api')
+        self.app.logger.info('StackSync API: Init OK')
 
     @wsgify
     def __call__(self, req):
@@ -76,3 +71,4 @@ def filter_factory(global_conf, **local_conf):
         return StackSyncMiddleware(app, conf)
 
     return stacksync_filter
+

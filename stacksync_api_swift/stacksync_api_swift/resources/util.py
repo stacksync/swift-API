@@ -1,9 +1,6 @@
-__author__ = 'Edgar Zamora Gomez'
 from webob import Request, Response
-
 import StringIO, zlib
 from cStringIO import StringIO as strIO
-
 from gzip import GzipFile
 from hashlib import sha1
 from time import time

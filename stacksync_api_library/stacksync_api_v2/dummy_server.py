@@ -1,9 +1,5 @@
-'''
-Created on 03/02/2014
-
-@author: edgar
-'''
 import time
+
 class DummyServerController():
     """
     Handles requests on objects
