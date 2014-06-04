@@ -10,4 +10,4 @@ setup(name='stacksync_api_swift',
       requires=['swift(>=1.4)'],
       install_requires=['stacksync_api_v2>=2.0', 'python-magic>=0.4.6'],
       entry_points={'paste.filter_factory':
-                        ['stacksync_api=stacksync_api_swift.stacksync_api_swift:filter_factory']})
+                        ['stacksync_api=stacksync_api_swift.swift_server:filter_factory']})
