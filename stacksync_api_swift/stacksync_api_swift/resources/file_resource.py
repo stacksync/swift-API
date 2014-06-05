@@ -1,19 +1,35 @@
-import json, urlparse
-from util import *
-from stacksync_api_swift.resources.data_handler import DataHandler
-import magic
-from swift.common.swob import HTTPCreated, HTTPOk
 from swift.common.utils import split_path
-from stacksync_api_swift.util import create_error_response
+from stacksync_api_swift.resources.data_handler import DataHandler
+from stacksync_api_swift.resources.data_util import BuildFile
+from stacksync_api_swift.resources.resource_util import create_response, is_valid_status, create_error_response
+import json
+import zlib
+import magic
 
 
 def POST(request, api_library, app):
+    """
+    POST /file
+
+    Query arguments:
+        - name: The user-visible name of the file to be created.
+        - parent: (Optional) ID of the folder where the file is going to be created.
+                    If no ID is given or if ID is '0', it will use the top-level (root) folder.
+
+    Create a file
+
+    An application can create a file by issuing an HTTP POST request. The application needs to provide
+    the file binary in the body and the file name as a query argument. Optionally, it can also provide
+    the parent argument to locate the file in a specific folder. Otherwise, the file will be placed in
+    the root folder.
+    """
+
     try:
         params = request.params
         content = request.body
-
     except:
-        return create_error_response(400, "Some problem with parameters.")
+        app.logger.error('StackSync API: file_resource POST: Could not obtain input parameters')
+        return create_error_response(400, "Could not obtain input parameters.")
 
     try:
         parent = params.get('parent')
@@ -25,163 +41,165 @@ def POST(request, api_library, app):
         name = None
 
     if not name:
-        return create_error_response(400, "It's mandatory to enter a name.")
+        app.logger.error('StackSync API: file_resource POST: Invalid file name.')
+        return create_error_response(400, "Invalid file name.")
 
-    if content is not None:
+    user_id = request.environ["stacksync_user_id"]
+
+    if len(content) > 0:
         app.logger.info('StackSync API: file_resource POST: content_length: %s name: %s parent: %s', str(len(content)),
                         str(name), str(parent))
 
+        workspace_info = api_library.get_workspace_info(user_id, parent)
+        response = create_response(workspace_info, status_code=200)
+        if not is_valid_status(response.status_int):
+            app.logger.error("StackSync API: file_resource POST: status code: %s. body: %s", str(response.status_int),
+                             str(response.body))
+            return response
+
+        workspace_info = json.loads(workspace_info)
+        container_name = workspace_info['swift_container']
         chunk_maker = BuildFile(content, [])
         chunk_maker.separate()
 
+        #FIXME: get the url_base in a cleaner way
         url_base = request.environ['PATH_INFO'].replace("/file", "")
         data_handler = DataHandler(app)
 
-        container_response = api_library.get_workspace_info(request.environ["stacksync_user_id"], parent)
-        container_response = json.loads(container_response)
-        if 'error' in container_response:
-            error = container_response["error"]
+        response = data_handler.upload_file_chunks(request.environ, url_base, chunk_maker, container_name)
 
-            app.logger.error('StackSync API: file_resource POST: status: %s description: %s', str(error),
-                        str(container_response['description']))
-
-            return create_error_response(error, str(json.dumps(container_response['description'])))
-
-        response = data_handler.upload_file_chunks(request.environ, url_base, chunk_maker, container_response['swift_container'])
-
-        chunks = chunk_maker.hashesList
+        chunks = chunk_maker.hash_list
         checksum = str((zlib.adler32(content) & 0xffffffff))
         file_size = len(content)
         mimetype = magic.from_buffer(content, mime=True)
 
-
-        if 200 <= response.status_int < 300:
-            app.logger.error('StackSync API: file_resource POST: status: %s description: Some problem to upload chunks'
-                             ' ', str(response.status_int))
+        if not is_valid_status(response.status_int):
+            app.logger.error("StackSync API: file_resource POST: error uploading file chunks: %s path info: %s",
+                             str(response.status),
+                             str(request.path_info))
             return response
 
-        message_new_version = api_library.new_file(request.environ["stacksync_user_id"], name, parent, checksum,
-                                                   file_size, mimetype, chunks)
-
-
-        data = json.loads(message_new_version)
-        if "error" in data:
-            # Create error response
-            error = data["error"]
-            response = create_error_response(error, str(json.dumps(data['description'])))
-            app.logger.error('StackSync API: file_resource POST: status: %s description: %s', str(error),
-                        str(data['description']))
-        else:
-            response = HTTPCreated(body=str(message_new_version))
-
-        return response
-
-    '''Without content'''
-    app.logger.info('StackSync API: file_resource POST: content_length: %s name: %s parent: %s', str(0), str(name), str(parent))
-    #using new validating module
-    message = api_library.new_file(request.environ["stacksync_user_id"], name, parent, None, 0, None, None)
-
-    data = json.loads(message)
-    if "error" in data:
-        # Create error response
-        error = data["error"]
-        app.logger.error('StackSync API: file_resource POST: status: %s description: %s', str(error),
-                        str(data['description']))
-        response = create_error_response(error, str(json.dumps(data['description'])))
     else:
-        response = HTTPCreated(body=message)
+        # Empty body
+        checksum = 0
+        file_size = 0
+        mimetype = 'inode/x-empty'
+        chunks = []
+
+    message_new_version = api_library.new_file(user_id, name, parent, checksum, file_size, mimetype, chunks)
+    response = create_response(message_new_version, status_code=201)
+    if not is_valid_status(response.status_int):
+        app.logger.error("StackSync API: file_resource POST: error updating data in StackSync Server: %s. body: %s",
+                         str(response.status_int),
+                         str(response.body))
+
     return response
 
 
 def DELETE(request, api_library, app):
+    """
+    DELETE /file/:file_id
+
+    Delete a file
+
+    An application can delete a file by issuing an HTTP DELETE request to the URL of the file resource.
+    It's a good idea to precede DELETE requests like this with a caution note in your application's user
+    interface.
+    """
+
     try:
         _, _, file_id = split_path(request.path, 3, 3, False)
     except:
-        return create_error_response(400, "It's mandatory to enter a file_id.")
-    # get Metadata of the file that had been deleted
+        app.logger.error("StackSync API: file_resource DELETE: Wrong resource path: %s path_info: %s", str(400),
+                         str(request.path_info))
+        return create_error_response(400, "Wrong resource path. Expected /file/:file_id")
 
     app.logger.info('StackSync API: file_resource DELETE: path info: %s', request.path_info)
+    user_id = request.environ["stacksync_user_id"]
 
-    message = api_library.delete_item(request.environ["stacksync_user_id"], file_id)
+    message = api_library.delete_item(user_id, file_id)
 
-    data = json.loads(message)
-    if "error" in data:
-        # Create error response
-        error = data["error"]
-        response = create_error_response(error, str(json.dumps(data['description'])))
-        app.logger.error('StackSync API: file_resource DELETE: status: %s description: %s', str(error),
-                        str(data['description']))
-
-    else:
-        response = HTTPOk(body=str(message))
-
+    response = create_response(message, status_code=200)
+    if not is_valid_status(response.status_int):
+        app.logger.error("StackSync API: file_resource DELETE: error deleting file in StackSync Server: %s.",
+                         str(response.status_int))
     return response
 
 
 def GET(request, api_library, app):
+    """
+    GET /file/:file_id
+
+    Get file's metadata
+
+    To retrieve information about a file, an application submits an HTTP GET request to the file
+    resource that represents the file.
+    """
+
     try:
         _, _, file_id = split_path(request.path, 3, 3, False)
     except:
-        app.logger.error('StackSync API: file_resource GET: status: %s description: %s', str(400),
-                         "It's mandatory to enter a file_id.")
-        return create_error_response(400, "It's mandatory to enter a file_id.")
+        app.logger.error("StackSync API: file_resource GET: Wrong resource path: %s path_info: %s", str(400),
+                         str(request.path_info))
+        return create_error_response(400, "Wrong resource path. Expected /file/:file_id")
 
     app.logger.info('StackSync API: file_resource GET: path info: %s', request.path_info)
+    user_id = request.environ["stacksync_user_id"]
 
+    message = api_library.get_metadata(user_id, file_id)
 
-    message = api_library.get_metadata(request.environ["stacksync_user_id"], file_id)
-
-    if not message:
-        app.logger.error('StackSync API: file_resource GET: status: %s path info: %s', str(404), request.path_info)
-        return create_error_response(404, "File or folder not found at the specified path:" + request.path_info)
-
-    data = json.loads(message)
-    if "error" in data:
-        # Create error response
-        error = data["error"]
-        response = create_error_response(error, str(json.dumps(data['description'])))
-        app.logger.error('StackSync API: file_resource GET: status: %s description: %s', str(error),
-                        str(data['description']))
-    else:
-        response = HTTPOk(body=str(message))
-
+    response = create_response(message, status_code=200)
+    if not is_valid_status(response.status_int):
+        app.logger.error("StackSync API: file_resource DELETE: error deleting file in StackSync Server: %s.",
+                         str(response.status_int))
     return response
 
 
 def PUT(request, api_library, app):
+    """
+    PUT /file/:file_id
+
+    Body parameters (JSON encoded):
+        - name: (Optional) The user-visible name of the file to be created.
+        - parent: (Optional) ID of the folder where the file or folder is going to be moved. If ID is
+                    set to '0', it will be moved the top-level (root) folder.
+
+    Update file metadata
+
+    An application can update various attributes of a file by issuing an HTTP PUT request to the URL that
+    represents the file resource. In addition, the app needs to provide as input, JSON that identifies the
+    new attribute values for the file. Upon receiving the PUT request, the StackSync service examines the
+    input and updates any of the attributes that have been modified.
+    """
+
     try:
         _, _, file_id = split_path(request.path, 3, 3, False)
     except:
-        app.logger.error('StackSync API: file_resource PUT: status: %s path info: %s', str(404), request.path_info)
-        return create_error_response(400, "It's mandatory to enter a file_id. ")
+        app.logger.error("StackSync API: file_resource PUT: Wrong resource path: %s path_info: %s", str(400),
+                         str(request.path_info))
+        return create_error_response(400, "Wrong resource path. Expected /file/:file_id")
+
     try:
-        args = urlparse.parse_qs(request.body, 1)
+        params = json.loads(request.body)
     except:
         app.logger.error('StackSync API: file_resource PUT: status: %s path info: %s', str(404), request.path_info)
-        return create_error_response(400, "Some problem with parameters.")
+        return create_error_response(400, "Could not decode body parameters.")
+
     try:
-        parent = args.get('parent')[0]
-    except:
-        app.logger.error('StackSync API: file_resource PUT: status: %s path info: %s', str(404), request.path_info)
+        parent = params['parent']
+    except KeyError:
         parent = None
     try:
-        name = args.get('name')[0]
-    except:
-        app.logger.error('StackSync API: file_resource PUT: status: %s path info: %s', str(404), request.path_info)
+        name = params['name']
+    except KeyError:
         name = None
 
     app.logger.info('StackSync API: file_resource GET: path info: %s', request.path_info)
 
     message = api_library.put_metadata(request.environ["stacksync_user_id"], file_id, name, parent)
 
-    data = json.loads(message)
-    if "error" in data:
-        # Create error response
-        error = data["error"]
-        response = create_error_response(error, str(json.dumps(data['description'])))
-        app.logger.error('StackSync API: file_resource PUT: status: %s description: %s', str(error),
-                        str(data['description']))
-    else:
-        response = HTTPCreated(body=str(message))
-
+    response = create_response(message, status_code=200)
+    if not is_valid_status(response.status_int):
+        app.logger.error("StackSync API: file_resource DELETE: error deleting file in StackSync Server: %s.",
+                         str(response.status_int))
     return response
