@@ -1,14 +1,16 @@
 import os
-from swift.common.swob import wsgify, HTTPUnauthorized
+from swift.common.swob import wsgify, HTTPUnauthorized, HTTPBadRequest
 from stacksync_api_v2.api_library import StackSyncApi
+from stacksync_api_v2 import STACKSYNC
 from swift.common.utils import get_logger
 
 
 class StackSyncMiddleware(object):
     def __init__(self, app, conf):
         self.app = app
-        self.conf = conf
-        self.api_library = StackSyncApi('stacksync')
+        host = conf.get('stacksync_host', '127.0.0.1').lower()
+        port = conf.get('stacksync_port', 61234)
+        self.api_library = StackSyncApi(STACKSYNC, host=host, port=port)
         self.app.logger = get_logger(conf, log_route='stacksync_api')
         self.app.logger.info('StackSync API: Init OK')
 
@@ -17,6 +19,7 @@ class StackSyncMiddleware(object):
         self.app.logger.info('StackSync API: __call__: %r', req.environ)
         if not self.__is_api_call(req):
             return self.app
+
         response = self.authorize(req)
         if response:
             return response
@@ -30,8 +33,9 @@ class StackSyncMiddleware(object):
             head, tail = os.path.split(head)
             if tail == 'data' or tail == 'versions' or tail == 'file' or tail == 'folder':
                 return self.__call_resource(tail, req)
-        #return error (bad request) if it was not any case
-        return self.app
+
+        # request does not match any resource
+        return HTTPBadRequest()
 
     def __call_resource(self, tail, req):
         controller = __import__('resources' + '.' + tail + '_resource', globals(), locals(),

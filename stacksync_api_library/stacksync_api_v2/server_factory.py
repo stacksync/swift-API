@@ -1,13 +1,12 @@
+from stacksync_api_v2 import STACKSYNC, DUMMY
 from stacksync_api_v2.stacksync_server import StacksyncServerController
 from stacksync_api_v2.dummy_server import DummyServerController
 
-STACKSYNC = 'stacksync'
-DUMMY = 'dummy'
 
 class ServerControllerFactory(object):
 
-    def get_server(self, kind):
+    def get_server(self, kind, host, port):
         if kind == STACKSYNC:
-            return StacksyncServerController("127.0.0.1", 61234)
+            return StacksyncServerController(host, port)
         elif kind == DUMMY:
             return DummyServerController()

@@ -59,16 +59,14 @@ def POST(request, api_library, app):
 
         workspace_info = json.loads(workspace_info)
         container_name = workspace_info['swift_container']
-        chunk_maker = BuildFile(content, [])
-        chunk_maker.separate()
+        chunked_file = BuildFile(content, [])
+        chunked_file.separate()
 
-        #FIXME: get the url_base in a cleaner way
-        url_base = request.environ['PATH_INFO'].replace("/file", "")
         data_handler = DataHandler(app)
 
-        response = data_handler.upload_file_chunks(request.environ, url_base, chunk_maker, container_name)
+        response = data_handler.upload_file_chunks(request.environ, chunked_file, container_name)
 
-        chunks = chunk_maker.hash_list
+        chunks = chunked_file.hash_list
         checksum = str((zlib.adler32(content) & 0xffffffff))
         file_size = len(content)
         mimetype = magic.from_buffer(content, mime=True)
@@ -195,8 +193,9 @@ def PUT(request, api_library, app):
         name = None
 
     app.logger.info('StackSync API: file_resource GET: path info: %s', request.path_info)
+    user_id = request.environ["stacksync_user_id"]
 
-    message = api_library.put_metadata(request.environ["stacksync_user_id"], file_id, name, parent)
+    message = api_library.put_metadata(user_id, file_id, name, parent)
 
     response = create_response(message, status_code=200)
     if not is_valid_status(response.status_int):

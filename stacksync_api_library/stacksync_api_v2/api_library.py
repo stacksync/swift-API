@@ -1,11 +1,10 @@
-import json
 from stacksync_api_v2.server_factory import ServerControllerFactory
 
 
 class StackSyncApi(object):
 
-    def __init__(self, server_type):
-        self.server = ServerControllerFactory().get_server(server_type)
+    def __init__(self, server_type, host='127.0.0.1', port=61234):
+        self.server = ServerControllerFactory().get_server(server_type, host, port)
 
     def get_metadata(self, user_id, file_id, include_chunks=False, specific_version=None):
         results = self.server.get_metadata(user_id, file_id, include_chunks, specific_version)
@@ -15,8 +14,8 @@ class StackSyncApi(object):
         results = self.server.get_folder_contents(user_id, folder_id, include_deleted)
         return results
 
-    def get_versions(self, user, fileId):        
-        message = self.server.get_versions(user, fileId)
+    def get_versions(self, user, file_id):
+        message = self.server.get_versions(user, file_id)
         return message
 
     def new_folder(self, user_id, name, parent=None):

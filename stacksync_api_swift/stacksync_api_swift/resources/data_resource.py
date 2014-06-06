@@ -55,15 +55,12 @@ def PUT(request, api_library, app):
 
         workspace_info = json.loads(workspace_info)
         container_name = workspace_info['swift_container']
-        chunk_maker = BuildFile(content, [])
-        chunk_maker.separate()
-
-        #FIXME: get the url_base in a cleaner way
-        url_base = request.environ['PATH_INFO'].replace("/file/" + file_id + "/data", "")
+        chunked_file = BuildFile(content, [])
+        chunked_file.separate()
 
         data_handler = DataHandler(app)
 
-        response = data_handler.upload_file_chunks(request.environ, url_base, chunk_maker, container_name)
+        response = data_handler.upload_file_chunks(request.environ, chunked_file, container_name)
 
         if not is_valid_status(response.status_int):
             app.logger.error("StackSync API: data_resource PUT: error uploading file chunks: %s path info: %s",
@@ -71,7 +68,7 @@ def PUT(request, api_library, app):
                              str(request.path_info))
             return create_error_response(500, "Could not upload chunks to storage backend.")
 
-        chunks = chunk_maker.hash_list
+        chunks = chunked_file.hash_list
         checksum = str((zlib.adler32(content) & 0xffffffff))
         file_size = str(len(content))
         mimetype = magic.from_buffer(content, mime=True)
@@ -123,8 +120,6 @@ def GET(request, api_library, app):
 
     metadata = json.loads(metadata)
 
-    #FIXME: get the url_base in a cleaner way
-    url_base = request.environ['PATH_INFO'].replace("/file/" + file_id + "/data", "")
     data_handler = DataHandler(app)
 
     workspace_info = api_library.get_workspace_info(user_id, file_id)
@@ -137,15 +132,15 @@ def GET(request, api_library, app):
     workspace_info = json.loads(workspace_info)
     container_name = workspace_info['swift_container']
 
-    file_compress_content, status = data_handler.get_chunks(request.environ, url_base, metadata['chunks'],
+    file_compress_content, status = data_handler.get_chunks(request.environ, metadata['chunks'],
                                                             container_name)
 
     if is_valid_status(status):
         if len(file_compress_content) > 0:
-            join_file = BuildFile("", file_compress_content)
-            join_file.join()
+            joined_file = BuildFile("", file_compress_content)
+            joined_file.join()
             headers = {'Content-Type': metadata['mimetype']}
-            return HTTPOk(body=join_file.content, headers=headers)
+            return HTTPOk(body=joined_file.content, headers=headers)
         elif len(metadata['chunks']) == 0:
             return HTTPOk(body='')
         else:
