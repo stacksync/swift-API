@@ -45,6 +45,7 @@ class DataHandler(object):
     def get_chunks(self, env, chunks, container):
         file_compress_content = []
         self.app.logger.info('StackSync API: get_chunks: chunks: %s container: %s', str(chunks), str(container))
+        seg_resp = None
         for chunk in chunks:
             file_chunk = "chk-" + str(chunk)
 
