@@ -35,7 +35,7 @@ def GET(request, api_library, app):
                              str(file_id))
     else:
         # if a version is given, return metadata about that specific version
-        message = api_library.get_metadata(user_id, file_id, specific_version=version)
+        message = api_library.get_metadata(user_id, file_id, specific_version=version, is_folder=False)
         response = create_response(message, status_code=200)
         if not is_valid_status(response.status_int):
             app.logger.error("StackSync API: versions_resource GET: error getting version of file %s and version %s.",

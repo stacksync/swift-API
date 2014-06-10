@@ -6,8 +6,8 @@ class StackSyncApi(object):
     def __init__(self, server_type, host='127.0.0.1', port=61234):
         self.server = ServerControllerFactory().get_server(server_type, host, port)
 
-    def get_metadata(self, user_id, file_id, include_chunks=False, specific_version=None):
-        results = self.server.get_metadata(user_id, file_id, include_chunks, specific_version)
+    def get_metadata(self, user_id, file_id, include_chunks=False, specific_version=None, is_folder=False):
+        results = self.server.get_metadata(user_id, file_id, include_chunks, specific_version, is_folder)
         return results
 
     def get_folder_contents(self, user_id, folder_id, include_deleted=True):

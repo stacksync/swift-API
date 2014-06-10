@@ -34,7 +34,7 @@ def PUT(request, api_library, app):
     user_id = request.environ["stacksync_user_id"]
 
     # We look up the name of file, and full path, to update it.
-    message = api_library.get_metadata(user_id, file_id)
+    message = api_library.get_metadata(user_id, file_id, is_folder=False)
 
     response = create_response(message, status_code=200)
     if not is_valid_status(response.status_int):
@@ -111,7 +111,7 @@ def GET(request, api_library, app):
 
     user_id = request.environ["stacksync_user_id"]
     metadata = api_library.get_metadata(user_id, file_id, include_chunks=True,
-                                        specific_version=version)
+                                        specific_version=version, is_folder=False)
     response = create_response(metadata, status_code=200)
     if not is_valid_status(response.status_int):
         app.logger.error("StackSync API: data_resource GET: status code: %s. body: %s", str(response.status_int),
