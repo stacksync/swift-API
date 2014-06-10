@@ -5,12 +5,12 @@ class StacksyncServerController():
     """
     Handles requests on objects
     """
-    def __init__(self, serverIp, serverPort, **kwargs):
+    def __init__(self, server_ip, server_port):
         
         #Create Sync server connection
-        self.xml_ip = serverIp
-        self.xml = serverPort
-        self.rpc_server = xmlrpclib.ServerProxy("http://"+serverIp+':'+str(serverPort))
+        self.xml_ip = server_ip
+        self.xml = server_port
+        self.rpc_server = xmlrpclib.ServerProxy("http://"+server_ip+':'+str(server_port))
 
 
     def get_metadata(self, user, file_id, include_chunks, version, is_folder):
