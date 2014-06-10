@@ -13,13 +13,14 @@ class StacksyncServerController():
         self.rpc_server = xmlrpclib.ServerProxy("http://"+serverIp+':'+str(serverPort))
 
 
-    def get_metadata(self, user, file_id, include_chunks, version):
+    def get_metadata(self, user, file_id, include_chunks, version, is_folder):
         version = "null" if version is None else version
         include_chunks = "false" if include_chunks is False else "true"
         file_id = "null" if str(file_id) == "0" else file_id
+        is_folder = "false" if is_folder is False else "true"
 
         response = self.rpc_server.XmlRpcSyncHandler.getMetadata(user, str(file_id), str(include_chunks),
-                                                                 str(version))
+                                                                 str(version), str(is_folder))
 
         return response
 

@@ -57,6 +57,9 @@ class DataHandler(object):
             else:
                 file_compress_content = []
                 break
-
-        return file_compress_content, seg_resp.status_int
+        if seg_resp:
+            return file_compress_content, seg_resp.status_int
+        else:
+            # No chunks
+            return file_compress_content, 200
 

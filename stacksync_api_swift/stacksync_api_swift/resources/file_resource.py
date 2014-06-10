@@ -144,7 +144,7 @@ def GET(request, api_library, app):
     app.logger.info('StackSync API: file_resource GET: path info: %s', request.path_info)
     user_id = request.environ["stacksync_user_id"]
 
-    message = api_library.get_metadata(user_id, file_id)
+    message = api_library.get_metadata(user_id, file_id, is_folder=False)
 
     response = create_response(message, status_code=200)
     if not is_valid_status(response.status_int):
