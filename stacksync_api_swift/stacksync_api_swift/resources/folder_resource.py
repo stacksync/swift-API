@@ -90,7 +90,7 @@ def GET(request, api_library, app):
     """
 
     try:
-        _, _, folder_id = split_path(request.path, 2, 3, False)
+        _, _, folder_id = split_path(request.path, 3, 3, False)
     except:
         app.logger.error("StackSync API: folder_resource GET: Wrong resource path: %s path_info: %s", str(400),
                          str(request.path_info))

@@ -5,12 +5,12 @@ class StacksyncServerController():
     """
     Handles requests on objects
     """
-    def __init__(self, serverIp, serverPort, **kwargs):
+    def __init__(self, server_ip, server_port):
         
         #Create Sync server connection
-        self.xml_ip = serverIp
-        self.xml = serverPort
-        self.rpc_server = xmlrpclib.ServerProxy("http://"+serverIp+':'+str(serverPort))
+        self.xml_ip = server_ip
+        self.xml = server_port
+        self.rpc_server = xmlrpclib.ServerProxy("http://"+server_ip+':'+str(server_port))
 
 
     def get_metadata(self, user, file_id, include_chunks, version, is_folder):
@@ -76,6 +76,7 @@ class StacksyncServerController():
         return response
 
     def get_workspace_info(self, user, item_id):
-        item_id = "null" if item_id is None else item_id
+        item_id = "null" if item_id is None or str(item_id) is "0" else item_id
+        
         response = self.rpc_server.XmlRpcSyncHandler.getWorkspaceInfo(str(user), str(item_id))
         return response
