@@ -75,6 +75,7 @@ class StacksyncServerController():
         return response
 
     def get_workspace_info(self, user, item_id):
-        item_id = "null" if item_id is None else item_id
+        item_id = "null" if item_id is None or str(item_id) is "0" else item_id
+        
         response = self.rpc_server.XmlRpcSyncHandler.getWorkspaceInfo(str(user), str(item_id))
         return response
