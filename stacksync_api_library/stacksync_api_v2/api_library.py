@@ -34,8 +34,8 @@ class StackSyncApi(object):
             return None
         return response
 
-    def delete_item(self, user_id,  file_id):
-        message = self.server.delete_item(user_id, file_id)
+    def delete_item(self, user_id,  file_id, is_folder=False):
+        message = self.server.delete_item(user_id, file_id, is_folder)
         return message
 
     def put_metadata(self, user_id, file_id, name=None, parent=None):

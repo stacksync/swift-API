@@ -12,7 +12,6 @@ class StacksyncServerController():
         self.xml = server_port
         self.rpc_server = xmlrpclib.ServerProxy("http://"+server_ip+':'+str(server_port))
 
-
     def get_metadata(self, user, file_id, include_chunks, version, is_folder):
         version = "null" if version is None else version
         include_chunks = "false" if include_chunks is False else "true"
@@ -30,15 +29,16 @@ class StacksyncServerController():
         return response
 
     def get_folder_contents(self, user, folder_id, include_deleted):
-
         include_deleted = "true" if include_deleted is True else "false"
         folder_id = "null" if str(folder_id) == '0' else folder_id
 
         response = self.rpc_server.XmlRpcSyncHandler.getFolderContents(str(user), str(folder_id), str(include_deleted))
         return response
 
-    def delete_item(self, user, file_id):
-        response = self.rpc_server.XmlRpcSyncHandler.deleteItem(user, str(file_id))
+    def delete_item(self, user, file_id, is_folder):
+        is_folder = "false" if is_folder is False else "true"
+
+        response = self.rpc_server.XmlRpcSyncHandler.deleteItem(user, str(file_id), str(is_folder))
 
         return response
 

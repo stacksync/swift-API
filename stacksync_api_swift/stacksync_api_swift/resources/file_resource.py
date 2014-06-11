@@ -115,7 +115,7 @@ def DELETE(request, api_library, app):
     app.logger.info('StackSync API: file_resource DELETE: path info: %s', request.path_info)
     user_id = request.environ["stacksync_user_id"]
 
-    message = api_library.delete_item(user_id, file_id)
+    message = api_library.delete_item(user_id, file_id, is_folder=False)
 
     response = create_response(message, status_code=200)
     if not is_valid_status(response.status_int):
