@@ -26,7 +26,7 @@ class StackSyncMiddleware(object):
             return response
 
         #validate path
-        validator = re.compile('v1/(file|folder)/?(\d+)?(/)?(data|contents|versions)?/?(\d+)?/?(data)?')
+        validator = re.compile('v1/(file|folder)/?(\d+)?(/)?(data|contents|versions|share|unshare|members)?/?(\d+)?/?(data)?')
         validator_result = validator.match(req.environ['PATH_INFO'])
         if not validator_result or req.environ['PATH_INFO'] != validator_result.group():
             return HTTPBadRequest()
