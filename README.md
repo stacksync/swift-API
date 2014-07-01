@@ -10,7 +10,7 @@ StackSync API module
 2) Edit your proxy-server.conf pipeline to enable the StackSync API module.
 
     [pipeline:main]
-    pipeline = healthcheck cache authtoken keystone __stacksync-api__ proxy-server
+    pipeline = healthcheck cache authtoken keystone stacksync-api proxy-server
 
 3) And add the WSGI filter below:
 
