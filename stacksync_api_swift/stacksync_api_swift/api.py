@@ -3,6 +3,7 @@ from swift.common.swob import wsgify, HTTPUnauthorized, HTTPBadRequest
 from stacksync_api_v2.api_library import StackSyncApi
 from stacksync_api_v2 import STACKSYNC
 from swift.common.utils import get_logger
+import re
 
 
 class StackSyncMiddleware(object):
@@ -24,8 +25,13 @@ class StackSyncMiddleware(object):
         if response:
             return response
 
+        #validate path
+        validator = re.compile('v1/(file|folder)/?(\d+)?(/)?(data|contents|versions)?/?(\d+)?/?(data)?')
+        validator_result = validator.match(req.environ['PATH_INFO'])
+        if not validator_result or req.environ['PATH_INFO'] != validator_result.group():
+            return HTTPBadRequest()
+
         # redirect the request to the proper resource
-        #TODO: replace this code by regular expressions that identify resources
         head, tail = os.path.split(req.environ['PATH_INFO'])
         if tail == 'data' or tail == 'versions' or tail == 'file' or tail == 'folder' or tail == 'contents':
             return self.__call_resource(tail, req)
@@ -36,6 +42,8 @@ class StackSyncMiddleware(object):
 
         # request does not match any resource
         return HTTPBadRequest()
+
+
 
     def __call_resource(self, tail, req):
         controller = __import__('resources' + '.' + tail + '_resource', globals(), locals(),

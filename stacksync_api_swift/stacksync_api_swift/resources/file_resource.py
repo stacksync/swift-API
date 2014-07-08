@@ -148,7 +148,7 @@ def GET(request, api_library, app):
 
     response = create_response(message, status_code=200)
     if not is_valid_status(response.status_int):
-        app.logger.error("StackSync API: file_resource DELETE: error deleting file in StackSync Server: %s.",
+        app.logger.error("StackSync API: file_resource GET: Error getting file metadata from StackSync Server: %s.",
                          str(response.status_int))
     return response
 
