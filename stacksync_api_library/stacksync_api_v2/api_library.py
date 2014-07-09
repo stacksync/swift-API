@@ -47,3 +47,15 @@ class StackSyncApi(object):
     def get_workspace_info(self, user_id, item_id):
         message = self.server.get_workspace_info(user_id, item_id)
         return message
+
+    def share_folder(self, user_id, folder_id, users_list):
+        message = self.server.share_folder(user_id, folder_id, users_list)
+        return message
+
+    def unshare_folder(self, user_id, folder_id, users_list):
+        message = self.server.unshare_folder(user_id, folder_id, users_list)
+        return message
+
+    def get_folder_members(self, user_id, folder_id):
+        message = self.server.get_folder_members(user_id, folder_id)
+        return message

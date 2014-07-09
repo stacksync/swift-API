@@ -80,3 +80,15 @@ class StacksyncServerController():
         
         response = self.rpc_server.XmlRpcSyncHandler.getWorkspaceInfo(str(user), str(item_id))
         return response
+
+    def share_folder(self, user_id, folder_id, users_list):
+        message = self.rpc_server.XmlRpcSyncHandler.shareFolder(str(user_id), str(folder_id), users_list)
+        return message
+
+    def unshare_folder(self, user_id, folder_id, users_list):
+        message = self.rpc_server.XmlRpcSyncHandler.unshareFolder(str(user_id), str(folder_id), users_list)
+        return message
+
+    def get_folder_members(self, user_id, folder_id):
+        message = self.server.getFolderMembers(str(user_id), str(folder_id))
+        return message
