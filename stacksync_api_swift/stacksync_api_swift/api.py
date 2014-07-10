@@ -26,18 +26,19 @@ class StackSyncMiddleware(object):
             return response
 
         #validate path
-        validator = re.compile('v1/(file|folder)/?(\d+)?(/)?(data|contents|versions|share|unshare|members)?/?(\d+)?/?(data)?')
+        validator = re.compile('/v1/(file|folder)/?(\d+)?(/)?(data|contents|versions|share|unshare|members)?/?(\d+)?/?(data)?')
         validator_result = validator.match(req.environ['PATH_INFO'])
         if not validator_result or req.environ['PATH_INFO'] != validator_result.group():
+            self.app.logger.info('StackSync API Request path not valid %s', req.environ['PATH_INFO'])
             return HTTPBadRequest()
 
         # redirect the request to the proper resource
         head, tail = os.path.split(req.environ['PATH_INFO'])
-        if tail == 'data' or tail == 'versions' or tail == 'file' or tail == 'folder' or tail == 'contents':
+        if tail == 'data' or 'versions' or 'file' or 'folder' or 'contents' or 'share' or 'unshare' or 'members':
             return self.__call_resource(tail, req)
         else:
             head, tail = os.path.split(head)
-            if tail == 'data' or tail == 'versions' or tail == 'file' or tail == 'folder':
+            if tail == 'data' or 'versions' or 'file' or 'folder':
                 return self.__call_resource(tail, req)
 
         # request does not match any resource

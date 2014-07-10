@@ -43,7 +43,7 @@ class StacksyncServerController():
         return response
 
     def new_folder(self, user, name, parent):
-        parent = "null" if parent is None or str(parent) is "0" else parent
+        parent = "null" if parent is None or str(parent) == "0" else parent
 
         response = self.rpc_server.XmlRpcSyncHandler.newFolder(str(user), str(name), str(parent))
 
@@ -53,7 +53,7 @@ class StacksyncServerController():
         chunks = [] if chunks is None else chunks
         mimetype = "empty" if mimetype is None else mimetype
         checksum = "0" if checksum is None else checksum
-        parent = "null" if parent is None or str(parent) is "0" else parent
+        parent = "null" if parent is None or str(parent) == "0" else parent
 
         response = self.rpc_server.XmlRpcSyncHandler.newFile(user, str(name), str(parent),
                                                             str(checksum), str(file_size), str(mimetype), chunks)
@@ -68,7 +68,7 @@ class StacksyncServerController():
         return response
 
     def update_metadata(self, user, file_id, name, parent):
-        parent = "null" if parent is None or str(parent) is "0" else parent
+        parent = "null" if parent is None or str(parent) == "0" else parent
         name = "null" if name is None else name
 
         response = self.rpc_server.XmlRpcSyncHandler.updateMetadata(str(user), str(file_id), str(name), str(parent))
@@ -76,7 +76,7 @@ class StacksyncServerController():
         return response
 
     def get_workspace_info(self, user, item_id):
-        item_id = "null" if item_id is None or str(item_id) is "0" else item_id
+        item_id = "null" if item_id is None or str(item_id) == "0" else item_id
         
         response = self.rpc_server.XmlRpcSyncHandler.getWorkspaceInfo(str(user), str(item_id))
         return response
