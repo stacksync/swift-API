@@ -90,5 +90,5 @@ class StacksyncServerController():
         return message
 
     def get_folder_members(self, user_id, folder_id):
-        message = self.server.getFolderMembers(str(user_id), str(folder_id))
+        message = self.rpc_server.XmlRpcSyncHandler.getFolderMembers(str(user_id), str(folder_id))
         return message
