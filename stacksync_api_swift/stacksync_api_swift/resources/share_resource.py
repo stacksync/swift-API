@@ -18,5 +18,5 @@ def POST(request, api_library, app):
         return response
     else:
         app.logger.error("StackSync API: share_resource POST: Bad request - Empty content")
-        return create_error_response(400, "Any email to share folder")
+        return create_error_response(400, "No addressee found.")
 

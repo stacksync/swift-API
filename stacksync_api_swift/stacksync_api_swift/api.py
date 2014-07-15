@@ -34,11 +34,11 @@ class StackSyncMiddleware(object):
 
         # redirect the request to the proper resource
         head, tail = os.path.split(req.environ['PATH_INFO'])
-        if tail == 'data' or 'versions' or 'file' or 'folder' or 'contents' or 'share' or 'unshare' or 'members':
+        if tail in ('data', 'versions', 'file', 'folder', 'contents', 'share', 'unshare', 'members'):
             return self.__call_resource(tail, req)
         else:
             head, tail = os.path.split(head)
-            if tail == 'data' or 'versions' or 'file' or 'folder':
+            if tail in ('data', 'versions', 'file', 'folder'):
                 return self.__call_resource(tail, req)
 
         # request does not match any resource
