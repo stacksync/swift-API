@@ -2,11 +2,12 @@
 
 # C extensions
 *.so
-
+*.svn
 # Packages
 *.egg
 *.egg-info
 dist
+.svn
 build
 eggs
 parts
@@ -34,3 +35,7 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+.settings
+
+#PyCharm
+.idea
