@@ -45,7 +45,7 @@ class StacksyncServerController():
     def new_folder(self, user, name, parent):
         parent = "null" if parent is None or str(parent) == "0" else parent
 
-        response = self.rpc_server.XmlRpcSyncHandler.newFolder(str(user), str(name), str(parent))
+        response = self.rpc_server.XmlRpcSyncHandler.newFolder(str(user), name.encode('utf-8'), str(parent))
 
         return response
 
@@ -55,7 +55,7 @@ class StacksyncServerController():
         checksum = "0" if checksum is None else checksum
         parent = "null" if parent is None or str(parent) == "0" else parent
 
-        response = self.rpc_server.XmlRpcSyncHandler.newFile(user, str(name), str(parent),
+        response = self.rpc_server.XmlRpcSyncHandler.newFile(user, name.encode('utf-8'), str(parent),
                                                             str(checksum), str(file_size), str(mimetype), chunks)
 
         return response
@@ -71,7 +71,7 @@ class StacksyncServerController():
         parent = "null" if parent is None or str(parent) == "0" else parent
         name = "null" if name is None else name
 
-        response = self.rpc_server.XmlRpcSyncHandler.updateMetadata(str(user), str(file_id), str(name), str(parent))
+        response = self.rpc_server.XmlRpcSyncHandler.updateMetadata(str(user), str(file_id), name.encode('utf-8'), str(parent))
 
         return response
 
