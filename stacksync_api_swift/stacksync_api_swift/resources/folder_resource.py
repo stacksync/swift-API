@@ -15,7 +15,7 @@ def POST(request, api_library, app):
     """
 
     try:
-        args = json.loads(request.body)
+        args = json.loads(unicode(request.body, 'iso-8859-15'))
     except:
         app.logger.error("StackSync API: folder_resource POST: Could not parse body parameters. Body %s",
                          str(request.body))
@@ -133,7 +133,7 @@ def PUT(request, api_library, app):
         return create_error_response(400, "Wrong resource path. Expected /folder/:folder")
 
     try:
-        params = json.loads(request.body)
+        params = json.loads(unicode(request.body, 'iso-8859-15'))
     except:
         app.logger.error('StackSync API: folder_resource PUT: status: %s path info: %s', str(404), request.path_info)
         return create_error_response(400, "Could not decode body parameters.")

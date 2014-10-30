@@ -178,7 +178,7 @@ def PUT(request, api_library, app):
         return create_error_response(400, "Wrong resource path. Expected /file/:file_id")
 
     try:
-        params = json.loads(request.body)
+        params = json.loads(unicode(request.body, 'iso-8859-15'))
     except:
         app.logger.error('StackSync API: file_resource PUT: status: %s path info: %s', str(404), request.path_info)
         return create_error_response(400, "Could not decode body parameters.")
