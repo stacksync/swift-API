@@ -24,7 +24,7 @@ class DataHandler(object):
             del env_aux['HTTP_STACKSYNC_API']
             env_aux['HTTP_X_USER'] = env['stacksync_user_account']
             seg_req = make_pre_authed_request(env_aux, method='PUT', path=new_path, body=chunk_content,
-                                              agent='%(orig)s')
+                                              agent=str(container))
 
             seg_resp = seg_req.get_response(self.app)
 
