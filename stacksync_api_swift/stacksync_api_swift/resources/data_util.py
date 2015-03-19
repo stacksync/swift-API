@@ -2,6 +2,7 @@ import StringIO
 from cStringIO import StringIO as strIO
 from gzip import GzipFile
 from hashlib import sha1
+import random
 
 CHUNK_SIZE = 524288
 
@@ -12,7 +13,7 @@ class Chunk(object):
         self.checksum = checksum.upper()
 
     def get_filename(self):
-        return "chk-" + self.checksum
+        return "chk-" + self.checksum +"-"+str(random.getrandbits(64))
 
 
 def get_sha1_hash(data):

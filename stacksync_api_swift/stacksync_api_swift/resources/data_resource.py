@@ -68,7 +68,7 @@ def PUT(request, api_library, app):
                              str(request.path_info))
             return create_error_response(500, "Could not upload chunks to storage backend.")
 
-        chunks = chunked_file.hash_list
+        chunks = chunked_file.name_list
         checksum = str((zlib.adler32(content) & 0xffffffff))
         file_size = str(len(content))
         mimetype = magic.from_buffer(content, mime=True)
