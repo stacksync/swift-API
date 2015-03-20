@@ -122,8 +122,18 @@ def DELETE(request, api_library, app):
         app.logger.error("StackSync API: data_resource DELETE: status code: %s. body: %s", str(response.status_int),
                          str(response.body))
         return response
-    
+    workspace_info = api_library.get_workspace_info(user_id, file_id)
+
+    response = create_response(workspace_info, status_code=200)
+    if not is_valid_status(response.status_int):
+        app.logger.error("StackSync API: data_resource PUT: status code: %s. body: %s", str(response.status_int),
+                             str(response.body))
+        return response
+
+    workspace_info = json.loads(workspace_info)
+    data_handler = DataHandler(app)   
     file_metadata = json.loads(message)
+    container_name = workspace_info['swift_container']
     response = data_handler.remove_old_chunks(request.environ, file_metadata['chunks'], container_name)
     response = create_response(message, status_code=200)
     if not is_valid_status(response.status_int):
@@ -208,13 +218,13 @@ def PUT(request, api_library, app):
     except KeyError:
         name = None
 
-    app.logger.info('StackSync API: file_resource GET: path info: %s', request.path_info)
+    app.logger.info('StackSync API: file_resource PUT: path info: %s', request.path_info)
     user_id = request.environ["stacksync_user_id"]
 
     message = api_library.put_metadata(user_id, file_id, name, parent)
 
     response = create_response(message, status_code=200)
     if not is_valid_status(response.status_int):
-        app.logger.error("StackSync API: file_resource DELETE: error deleting file in StackSync Server: %s.",
+        app.logger.error("StackSync API: file_resource PUT: error updateing file in StackSync Server: %s.",
                          str(response.status_int))
     return response
