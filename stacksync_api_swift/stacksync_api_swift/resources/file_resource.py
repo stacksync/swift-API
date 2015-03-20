@@ -66,7 +66,7 @@ def POST(request, api_library, app):
 
         response = data_handler.upload_file_chunks(request.environ, chunked_file, container_name)
 
-        chunks = chunked_file.hash_list
+        chunks = chunked_file.chunk_dict.keys()
         checksum = str((zlib.adler32(content) & 0xffffffff))
         file_size = len(content)
         mimetype = magic.from_buffer(content, mime=True)

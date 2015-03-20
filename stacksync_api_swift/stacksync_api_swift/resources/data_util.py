@@ -32,6 +32,7 @@ class BuildFile(object):
         self.hash_list = []
         self.content = content
         self.chunks = chunks
+        self.chunk_dict = {}
 
     def join(self):
         self.content = ""
@@ -54,6 +55,7 @@ class BuildFile(object):
                 chunk_object = Chunk(checksum)
                 self.name_list.append(chunk_object.get_filename())
                 self.hash_list.append(checksum.upper())
+                
                 # compress chunks process
                 buf = strIO()
                 f = GzipFile(mode='wb', fileobj=buf)
@@ -65,6 +67,7 @@ class BuildFile(object):
 
                 self.chunks.append(chunk)
                 last_index = i
+                self.chunk_dict[chunk_object.get_filename()] = [checksum.upper(), chunk]
 
             data = self.content[(last_index+1)*CHUNK_SIZE:]
         else:
@@ -85,3 +88,5 @@ class BuildFile(object):
             chunk = buf.getvalue()
 
             self.chunks.append(chunk)
+            self.chunk_dict[chunk_object.get_filename()] = [checksum.upper(), chunk]
+

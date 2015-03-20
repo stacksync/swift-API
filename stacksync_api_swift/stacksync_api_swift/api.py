@@ -24,7 +24,6 @@ class StackSyncMiddleware(object):
         response = self.authorize(req)
         if response:
             return response
-
         #validate path
         validator = re.compile('/v1/(file|folder)/?(\d+)?(/)?(data|contents|versions|version|share|unshare|members)?/?(\d+)?/?(data)?')
         validator_result = validator.match(req.environ['PATH_INFO'])
