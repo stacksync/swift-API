@@ -58,8 +58,8 @@ def PUT(request, api_library, app):
 	app.logger.error("StackSync API: old_chunks: %s", old_chunks)
         container_name = workspace_info['swift_container']
         chunked_file = BuildFile(content, [])
-        chunked_file.separate()
-        
+        chunked_file.separate(file_id)
+        print 'new chunks', chunked_file.chunk_dict.keys() 
         chunks_diff_remove = list(set(old_chunks) - set(chunked_file.chunk_dict.keys()))
         data_handler = DataHandler(app)
         
@@ -73,18 +73,18 @@ def PUT(request, api_library, app):
         #upload new chunks
         chunks_diff_add = list(set(chunked_file.chunk_dict.keys())-set(old_chunks))
         chunks_no_diff =  list(set(chunked_file.chunk_dict.keys())-set(chunks_diff_add))                  
-        if not chunks_diff_add:
-	    for key in chunks_no_diff:
-                del chunked_file.chunk_dict[key]
-            response = data_handler.upload_file_chunks(request.environ, chunked_file, container_name)
         
-            if not is_valid_status(response.status_int):
-                app.logger.error("StackSync API: data_resource PUT: error uploading file chunks: %s path info: %s",
+        for key in chunks_no_diff:
+            del chunked_file.chunk_dict[key]
+        response = data_handler.upload_file_chunks(request.environ, chunked_file, container_name)
+        
+        if not is_valid_status(response.status_int):
+            app.logger.error("StackSync API: data_resource PUT: error uploading file chunks: %s path info: %s",
                              str(response.status),
                              str(request.path_info))
-                return create_error_response(500, "Could not upload chunks to storage backend.")
+            return create_error_response(500, "Could not upload chunks to storage backend.")
 
-        chunks = chunked_file.name_list
+        chunks = chunked_file.chunk_dict.keys()
         checksum = str((zlib.adler32(content) & 0xffffffff))
         file_size = str(len(content))
         mimetype = magic.from_buffer(content, mime=True)
@@ -147,7 +147,7 @@ def GET(request, api_library, app):
 
     workspace_info = json.loads(workspace_info)
     container_name = workspace_info['swift_container']
-
+    print 'chunks to retrieve', metadata['chunks']
     file_compress_content, status = data_handler.get_chunks(request.environ, metadata['chunks'],
                                                             container_name)
 

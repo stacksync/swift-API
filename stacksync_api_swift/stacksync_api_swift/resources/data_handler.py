@@ -72,9 +72,8 @@ class DataHandler(object):
         self.app.logger.info('StackSync API: get_chunks: chunks: %s container: %s', str(chunks), str(container))
         seg_resp = None
         for chunk in chunks:
-            file_chunk = "chk-" + str(chunk)
 
-            new_path = "/v1/" + env['stacksync_user_account'] + "/" + container + "/" + file_chunk
+            new_path = "/v1/" + env['stacksync_user_account'] + "/" + container + "/" + str(chunk)
             seg_req = make_pre_authed_request(env, method='GET', path=new_path, body="", agent='%(orig)s')
             seg_resp = seg_req.get_response(self.app)
 
