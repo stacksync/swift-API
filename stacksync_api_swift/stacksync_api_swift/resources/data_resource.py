@@ -34,6 +34,7 @@ def PUT(request, api_library, app):
     user_id = request.environ["stacksync_user_id"]
 
     # We look up the name of file, and full path, to update it.
+    #TODO: addChunks true
     message = api_library.get_metadata(user_id, file_id, is_folder=False)
 
     response = create_response(message, status_code=200)

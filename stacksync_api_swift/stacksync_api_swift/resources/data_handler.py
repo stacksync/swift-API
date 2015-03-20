@@ -22,6 +22,7 @@ class DataHandler(object):
             new_path = "/v1/" + env['stacksync_user_account'] + "/" + container + "/" + chunk_name
             env_aux['SCRIPT_NAME'] = ""
             del env_aux['HTTP_STACKSYNC_API']
+            env_aux['HTTP_X_USER'] = env['stacksync_user_account']
             seg_req = make_pre_authed_request(env_aux, method='PUT', path=new_path, body=chunk_content,
                                               agent='%(orig)s')
 
