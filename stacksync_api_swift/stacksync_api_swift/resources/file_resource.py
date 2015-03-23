@@ -111,13 +111,29 @@ def DELETE(request, api_library, app):
         app.logger.error("StackSync API: file_resource DELETE: Wrong resource path: %s path_info: %s", str(400),
                          str(request.path_info))
         return create_error_response(400, "Wrong resource path. Expected /file/:file_id")
-
+    
     app.logger.info('StackSync API: file_resource DELETE: path info: %s', request.path_info)
     user_id = request.environ["stacksync_user_id"]
 
-    message = api_library.delete_item(user_id, file_id, is_folder=False)
+    message = api_library.get_metadata(user_id, file_id, is_folder=False, include_chunks=True)
 
     response = create_response(message, status_code=200)
+    if not is_valid_status(response.status_int):
+        app.logger.error("StackSync API: data_resource DELETE: status code: %s. body: %s", str(response.status_int),
+                         str(response.body))
+        return response
+    
+    file_metadata = json.loads(message)
+    response = data_handler.remove_old_chunks(request.environ, file_metadata['chunks'], container_name)
+    response = create_response(message, status_code=200)
+    if not is_valid_status(response.status_int):
+        app.logger.error("StackSync API: data_resource DELETE: status code: %s. body: %s", str(response.status_int),
+                         str(response.body))
+        return response
+    
+    message_delete = api_library.delete_item(user_id, file_id, is_folder=False)
+
+    response = create_response(message_delete, status_code=200)
     if not is_valid_status(response.status_int):
         app.logger.error("StackSync API: file_resource DELETE: error deleting file in StackSync Server: %s.",
                          str(response.status_int))
