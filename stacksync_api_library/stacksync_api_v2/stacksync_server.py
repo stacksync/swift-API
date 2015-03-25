@@ -68,13 +68,19 @@ class StacksyncServerController():
         return response
 
     def update_metadata(self, user, file_id, name, parent):
-        parent = "null" if parent is None or str(parent) == "0" else parent
-        updated = True
+        parentUpdated = True
+        if parent is None:
+            parent = "null"
+            parentUpdated = False
+        elif str(parent) == "0":
+            parent = "null"
+        
+        nameUpdated = True
         if name is None:
             name = "null"
-            updated = False
+            nameUpdated = False
 
-        response = self.rpc_server.XmlRpcSyncHandler.updateMetadata(str(user), str(file_id), name.encode('utf-8'), str(parent), str(updated))
+        response = self.rpc_server.XmlRpcSyncHandler.updateMetadata(str(user), str(file_id), name.encode('utf-8'), str(parent), str(nameUpdated), str(parentUpdated))
 
         return response
 
