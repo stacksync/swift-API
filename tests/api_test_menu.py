@@ -131,10 +131,11 @@ def update_file_metadata():
     else:
 	if not new_parent:
             parameters = {"name":str(new_name)}
-	elif not name:
+	elif not new_name:
 	    parameters = {"parent":new_parent}
 	else:
 	    parameters = {"name":str(new_name), "parent":new_parent}
+    print parameters
     headers['StackSync-API'] = "v2"
     headers['Content-Type'] = "application/json"
     r = requests.put(uri, json.dumps(parameters), headers=headers)
