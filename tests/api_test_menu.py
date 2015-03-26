@@ -186,7 +186,7 @@ def share_folder():
     headers['Content-Type'] = "application/json"
     emails = raw_input("mails to share (separated by comma):  ")
     shared_to = emails.split(",")
-    r = requests.get(uri, json.dumps(shared_to), headers=headers)
+    r = requests.post(uri, json.dumps(shared_to), headers=headers)
     print 'response', r
     print 'response', r.text    
 def unshare_folder():
@@ -197,7 +197,7 @@ def unshare_folder():
     headers['Content-Type'] = "application/json"
     emails = raw_input("mails to unshare (separated by comma):  ")
     shared_to = emails.split(",")
-    r = requests.get(uri, json.dumps(shared_to), headers=headers)
+    r = requests.post(uri, json.dumps(shared_to), headers=headers)
     print 'response', r
     print 'response', r.text   
 
