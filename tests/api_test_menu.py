@@ -178,10 +178,27 @@ def create_new_folder():
 	print 'response', r
         print 'response', r.text
 def share_folder():
-	None
-
+    file_id = raw_input("File id:  ")
+    url = BASE_URL +'/folder/'+str(file_id)+'/share'
+    uri, headers, _ = client.sign(url, http_method='GET')
+    headers['StackSync-API'] = "v2"  
+    headers['Content-Type'] = "application/json"
+    emails = raw_input("mails to share (separated by comma):  ")
+    shared_to = emails.split(",")
+    r = requests.get(uri, json.dumps(shared_to), headers=headers)
+    print 'response', r
+    print 'response', r.text    
 def unshare_folder():
-	None
+    file_id = raw_input("File id:  ")
+    url = BASE_URL +'/folder/'+str(file_id)+'/unshare'
+    uri, headers, _ = client.sign(url, http_method='GET')
+    headers['StackSync-API'] = "v2"  
+    headers['Content-Type'] = "application/json"
+    emails = raw_input("mails to unshare (separated by comma):  ")
+    shared_to = emails.split(",")
+    r = requests.get(uri, json.dumps(shared_to), headers=headers)
+    print 'response', r
+    print 'response', r.text   
 
 def update_folder_metadata():
     folder_id = raw_input("Folder id:  ")
