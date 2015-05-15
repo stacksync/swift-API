@@ -23,3 +23,4 @@ StackSync API module
 
     $ swift-init proxy restart
 
+You can see the API specifications [here](https://github.com/stacksync/swift-API/blob/master/StackSync_API_Specifications.md)
