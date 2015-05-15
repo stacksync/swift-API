@@ -1369,7 +1369,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=UTF-8
 Content-Length: 0
 
-["shared_to":["john.doe@yahoo.com", "walter.smith@stacksync.com", "foo@bar.com"]]
+{"shared_to":["john.doe@yahoo.com", "walter.smith@stacksync.com", "foo@bar.com"]}
 ```
 ## Unshare a folder
 
@@ -1435,7 +1435,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=UTF-8
 Content-Length: 0
 
-["unshared_to":["john.doe@yahoo.com", "walter.smith@stacksync.com", "foo@bar.com"]]
+{"unshared_to":["john.doe@yahoo.com", "walter.smith@stacksync.com", "foo@bar.com"]}
 ```
 ## Get folder members
 
