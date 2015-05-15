@@ -830,3 +830,100 @@ Content-Length: 248
 <File content…. >
 
 ```
+#Folder
+## Create a folder
+
+An application can create a folder by issuing an HTTP POST request to the URL of the containing folder resource. In addition, the application needs to provide as input, JSON that identifies the display name of the folder to be created.
+
+### Request
+
+#### URL structure
+
+**/folder**.
+
+#### Method
+POST
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+**Content-Length** | The length of the request body.
+**Content-Type** | The content type and character encoding of the response. The content type must be **application/json**, and the character encoding must be **UTF-8**.
+
+#### Request Query arguments
+JSON input that contains a dictionary with the following keys:
+
+FIELD |  DESCRIPTION | REQUIRED
+--- | --- | ---
+**name** | The user-visible name of the folder to be created. | Yes
+**parent** | ID of the folder where the folder is going to be uploaded. If no ID is passed, it will use the top-level folder. This parameter should **not** point to a file. | No
+
+#### HTTP Request Example
+
+```
+POST /folder
+ 
+StackSync-API: v2
+Content-Type: application/json
+
+{
+     “name”: “clients”,
+     “parent”:681465736
+}
+```
+
+
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+**Location** | The location of the newly created file.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**path** | The absolute path to the file.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**chunks** | Name list of created chunks
+
+#### Response example
+
+```json
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+Location: https://domain.ext/stacksync/folder/9873615
+
+{
+"id":642,
+"parent_id":null,
+"filename":"test_folder_for_documtation",
+"is_folder":true,
+"status":"NEW",
+"modified_at":"Tue Apr 28 11:56:53 CEST 2015",
+"version":1,
+"checksum":0,
+"size":0,
+"mimetype":"inode/directory""
+}
+
+```
