@@ -5,12 +5,12 @@ StackSync API Specification
 - [Authentication](#authentication)
 - [Error handling](#error-handling)
 - [File Resource](#file) 
-  - [Create a file](##create-a-file)
-  - [Upload file data](##upload-file-data)
-  - [Download file data](##download-file-data)
-  - [Delete a file](##delete-a-file)
-  - [Get file metadata](##get-file-metadata)
-  - [Update file metadata](##update-file-metadata)
+  - [Create a file](#create-a-file)
+  - [Upload file data](#upload-file-data)
+  - [Download file data](#download-file-data)
+  - [Delete a file](#delete-a-file)
+  - [Get file metadata](#get-file-metadata)
+  - [Update file metadata](#update-file-metadata)
 
 #Authentication
 
