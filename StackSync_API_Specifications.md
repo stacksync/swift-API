@@ -1343,14 +1343,14 @@ FIELD |  DESCRIPTION | REQUIRED
 **share_to** |Array of emails representing the users that will be invited to the shared folder. | Yes
 
 #### HTTP Request Example
-```
+```json
 POST /folder/214874/share
 
 StackSync-API: v2
 Content-Length: 294
 Content-Type: application/json
 
-[“john.doe@yahoo.com”, “walter.smith@stacksync.com”, “foo@bar.com”]
+["john.doe@yahoo.com", "walter.smith@stacksync.com", "foo@bar.com"]
 ```
 ### Response
 #### Response Header
@@ -1369,7 +1369,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=UTF-8
 Content-Length: 0
 
-["shared_to":“john.doe@yahoo.com”, “walter.smith@stacksync.com”, “foo@bar.com”]
+["shared_to":"john.doe@yahoo.com", "walter.smith@stacksync.com", "foo@bar.com"]
 ```
 ## Unshare a folder
 
@@ -1402,14 +1402,14 @@ FIELD |  DESCRIPTION | REQUIRED
 **unshare_to** |Array of emails representing the users that will be invited to the shared folder. | Yes
 
 #### HTTP Request Example
-```
+```json
 POST /folder/214874/unshare
 
 StackSync-API: v2
 Content-Length: 294
 Content-Type: application/json
 
-[“john.doe@yahoo.com”, “walter.smith@stacksync.com”, “foo@bar.com”]
+["john.doe@yahoo.com", "walter.smith@stacksync.com", "foo@bar.com"]
 ```
 
 #### Errors and Decisions
@@ -1435,7 +1435,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=UTF-8
 Content-Length: 0
 
-["unshared_to":“john.doe@yahoo.com”, “walter.smith@stacksync.com”, “foo@bar.com”]
+["unshared_to":"john.doe@yahoo.com", "walter.smith@stacksync.com", "foo@bar.com"]
 ```
 ## Get folder members
 
