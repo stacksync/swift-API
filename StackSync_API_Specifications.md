@@ -1,11 +1,24 @@
-Authentication
-==============
+StackSync API Specification
+==========================
+**Table of Contents**
+
+- [Authentication](#authentication)
+- [Error handling](#error-handling)
+- [File Resource](#file) 
+  - [Create a file](##create-a-file)
+  - [Upload file data](##upload-file-data)
+  - [Download file data](##download-file-data)
+  - [Delete a file](##delete-a-file)
+  - [Get file metadata](##get-file-metadata)
+  - [Update file metadata](##update-file-metadata)
+
+#Authentication
 
 After successfully receiving the Access Token and Token Secret as explained in the Authentication document, the Consumer is able to access API resources on behalf of the user. 
 
 All request must be signed as explained in the Signing Requests section, and contain the following parameters:
 
-OAuth parameter |  Description
+OAuth PARAMETER |  DESCRIPTION
 --- | --- 
 **oauth_consumer_key** | The Consumer Key.
 **oauth_signature_method** |  The signature method the Consumer used to sign the request. Options are “PLAINTEXT” and “HMAC-SHA1”.
@@ -15,14 +28,13 @@ OAuth parameter |  Description
 **oauth_version** | OPTIONAL. If present, value must be “1.0” . Service Providers must assume the protocol version to be 1.0 if this parameter is not present.
 **oauth_token** |  Access Token obtained after a successful authentication.
 
-Error handling
-==============
+#Error handling
 
 Errors are returned using standard HTTP error code syntax. Any additional info is included in the body of the return call, JSON-formatted. Error codes not listed here are in the REST API methods listed below.
 
 Standard API errors
 
-Code |  Description
+CODE |  DESCRIPTION
 --- | --- 
 **400** | Bad input parameter. Error message should indicate which one and why.
 **401** | Authorization required. The presented credentials, if any, were not sufficient to access the folder resource. Returned if an application attempts to use an access token after it has expired.
@@ -31,8 +43,8 @@ Code |  Description
 **405** | Request method not expected (generally should be GET or POST).
 **5xx** | Server error
 
-File
-====
+#File
+
 ## Create a file
 
 An application can create a file by issuing an HTTP POST request. The application needs to provide the file binary in the body and the file name as a query argument. Optionally, it can also provide the parent argument tco loate the file in a specific folder. Otherwise, the file will be placed in the root folder.
@@ -50,7 +62,7 @@ POST
 
 The request header includes the following information:
 
-FIELD |  Description
+FIELD |  DESCRIPTION
 --- | --- 
 **StackSync-API** | API version. The value must be **v2**.
 **Content-Length** | The length of the request body.
@@ -59,19 +71,479 @@ FIELD |  Description
 #### Request Query arguments
 JSON input that contains a dictionary with the following keys:
 
-FIELD |  Description | REQUIRED
+FIELD |  DESCRIPTION | REQUIRED
 --- | --- | ---
 **name** | The user-visible name of the file to be created. | Yes
 **parent** | ID of the folder where the file is going to be created. If no ID is passed, it will use the top-level folder. This parameter should **not** point to a file. | No
 
 #### HTTP Request Example
-'''
-  POST /file?name=new_file.txt&parent=8474
- 
-  StackSync-API: v2
-  Content-Length: 294
 
-  <file binary>
-'''
+```
+POST /file?name=new_file.txt&parent=8474
+ 
+StackSync-API: v2
+Content-Length: 294
+
+<file binary>
+```
+
 
 ### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+**Location** | The location of the newly created file.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**path** | The absolute path to the file.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**chunks** | Name list of created chunks
+
+#### Response example
+
+```json
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=UTF-8
+Content-Length: 12
+Location: https://domain.ext/stacksync/file/32565632156
+
+{
+"id":640,
+"parent_id":null,
+"filename":"Test_for_documentation.txt",
+"is_folder":false,
+"status":"NEW",
+"modified_at":"Tue Apr 28 11:19:23 CEST 2015",
+"version":1,
+"checksum":464127057,
+"size":12,
+"mimetype":"text/plain",
+"chunks":[
+"chk-1A2CE7C68848FB9E16F856AF1D23594E97BE42C9-16007656575193673912"
+]
+}
+
+```
+## Upload file data
+
+An application can upload data to a file by issuing an HTTP PUT request to the file data resource that represents the data for the file. The file binary will be sent in the request body.
+Uploading data to a file creates a new file version in the StackSync datastore and associates the uploaded data with the newly created file version.
+This approach does not allow the application to resume the upload if the upload does not successfully complete, that is, if all the data is not completely uploaded.
+
+### Request
+
+#### URL structure
+The URL that represents the file data resource. The URL begins with **/file**, followed by the file ID and ends with **/data**, for example,
+**/file/2148742318/data**
+
+#### Method
+PUT
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+**Content-Length** | The length of the request body.
+#### HTTP Request Example
+
+```
+PUT /file/2148742318/data
+ 
+ StackSync-API: v2
+Content-Length: 1478
+
+<File content…. >
+```
+
+
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**path** | The absolute path to the file.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**chunks** | Name list of created chunks
+
+#### Response example
+
+```json
+
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+
+{
+"id":640,
+"parent_id":null,
+"filename":"Test_for_documentation.txt",
+"is_folder":false,
+"status":"CHANGED",
+"modified_at":"Tue Apr 28 11:28:43 CEST 2015",
+"version":2,
+"checksum":2343897327,
+"size":28,
+"mimetype":"text/plain",
+"chunks":[
+"chk-4C07C64C030175211476CAA50892E950D0BA0D7C-640"
+]
+}
+
+```
+## Download file data
+
+To retrieve file data, an application submits an HTTP GET request to the file data resource that represents the data for the file.
+
+### Request
+
+#### URL structure
+The URL that represents the file data resource. The URL begins with **/file**, and ends with **/data**, for example, **/file/2148742318/data**
+
+#### Method
+GET
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+
+#### HTTP Request Example
+
+```
+GET /file/2148742318/data
+ 
+StackSync-API: v2
+```
+
+
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+The response body contains the retrieved file data.
+
+#### Response example
+
+```json
+
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+
+<File content…. >
+
+
+```
+## Delete a file
+
+An application can delete a file by issuing an HTTP DELETE request to the URL of the file resource. It's a good idea to precede DELETE requests like this with a caution note in your application's user interface.
+
+### Request
+
+#### URL structure
+The URL that represents the file data resource. The URL begins with **/file**, for example,  
+**/file/2148742318**.
+
+#### Method
+DELETE
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+
+#### HTTP Request Example
+
+```
+DELETE https://domain.ext/stacksync/file/2148742318
+ 
+StackSync-API: v2
+```
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**path** | The absolute path to the file.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**chunks** | Name list of created chunks
+
+#### Response example
+
+```json
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+
+{
+"id":640,
+"parent_id":null,
+"filename":"Test_for_documentation.txt",
+"is_folder":false,
+"status":"DELETED",
+"modified_at":"Tue Apr 28 11:38:46 CEST 2015",
+"version":3,
+"checksum":2343897327,
+"size":28,
+"mimetype":"text/plain",
+"chunks":[
+]
+}
+
+```
+
+## Get file metadata
+
+To retrieve information about a file, an application submits an HTTP GET request to the file resource that represents the file.
+
+### Request
+
+#### URL structure
+The URL that represents the file data resource. The URL begins with **/file**, and ends with the file ID, for example, **/file/2148742318**
+
+#### Method
+GET
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+
+#### HTTP Request Example
+
+```
+GET /file/2148742318
+ 
+StackSync-API: v2
+```
+
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**path** | The absolute path to the file.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**chunks** | Name list of created chunks
+
+#### Response example
+
+```json
+
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+
+{
+"id":179,
+"parent_id":null,
+"filename":"hello.txt",
+"is_folder":false,
+"status":"CHANGED",
+"modified_at":"2015-02-06 10:16:25.693",
+"version":9,
+"checksum":4015131941,
+"size":35,
+"mimetype":"text/plain",
+"chunks":[
+],
+"contents":[
+]
+}
+```
+## Update file metada
+
+An application can update various attributes of a file by issuing an HTTP PUT request to the URL that represents the file resource. In addition, the app needs to provide as input, JSON that identifies the new attribute values for the file. Upon receiving the PUT request, the StackSync service examines the input and updates any of the attributes that have been modified.
+Here are the file attributes that can be updated:
+ * name
+ * parent
+No other file attributes can be modified using a PUT request.
+
+**Note:** An application can move a file to a different parent folder by changing the value of the parent element.
+
+### Request
+
+#### URL structure
+The URL that represents the file data resource. The URL begins with **/file**, and ends with the file ID, for example, **/file/2148742318**.
+
+#### Method
+PUT
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+**Content-Length** | The length of the request body.
+**Content-Type** | The content type and character encoding of the response. The content type must be **application/json**, and the character encoding must be **UTF-8**.
+
+#### Request Body
+JSON input that contains a dictionary with the following keys:
+
+FIELD |  DESCRIPTION | REQUIRED
+--- | --- | ---
+**name** | The user-visible name of the file to be created. | NO
+**parent** | ID of the folder where the file is going to be created. If no ID is passed, it will use the top-level folder. This parameter should **not** point to a file. | No
+
+#### HTTP Request Example
+
+```json
+
+PUT /file/32565632156
+ 
+StackSync-API: v2
+Content-Length: 294
+Content-Type: application/json
+
+{
+     “name”: “Winter2012_renamed.jpg”,
+     “parent”:12386548974
+}
+
+```
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+**Location** | The location of the newly created file.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**path** | The absolute path to the file.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**chunks** | Name list of created chunks
+
+#### Response example
+
+```json
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+Location: https://domain.ext/stacksync/file/
+
+{
+"id":641,
+"parent_id":null,
+"filename":"Test_for_documtation_name_update.txt",
+"is_folder":false,
+"status":"RENAMED",
+"modified_at":"Tue Apr 28 11:52:55 CEST 2015",
+"version":2,
+"checksum":615384210,
+"size":14,
+"mimetype":"text/plain",
+"chunks":[
+"chk-91DD3E155628E931EFB01B0F6BB121A7C21910DE-3836471730894233428"
+]
+}
+
+```
