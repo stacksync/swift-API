@@ -11,10 +11,19 @@ StackSync API Specification
   - [Delete a file](#delete-a-file)
   - [Get file metadata](#get-file-metadata)
   - [Update file metadata](#update-file-metadata)
-- [Versions](#versions)
+- [Versions Resource](#versions)
   - [Get file versions](#get-file-versions)
   - [Get file version metadata](#get-file-version-metadata)
   - [Get file version data](#get-file-version-data)
+- [Folder Resource](#folder)
+  - [Create a folder](#create-a-folder)
+  - [Delete a folder](#delete-a-folder)
+  - [Get folder metadata](#get-folder-metadata)
+  - [Get folder content metadata](#get-folder-content-metadata)
+  - [Update folder metadata](#update-folder-metadata)
+  - [Share a folder](#share-a-folder)
+  - [Unshare a folder](#unshare-a-folder)
+  - [Get folder members](#get-folder-members)
 
 #Authentication
 
@@ -107,7 +116,6 @@ FIELD |  DESCRIPTION
 ELEMENT |  DESCRIPTION
 --- | --- 
 **filename** | The user-visible name of the file to be created.
-**path** | The absolute path to the file.
 **id** | A unique identifier for a file or folder.
 **parent_id** | ID of the folder’s parent.
 **is_folder** | Flag indicating whether it is a folder or not.
@@ -194,7 +202,6 @@ FIELD |  DESCRIPTION
 ELEMENT |  DESCRIPTION
 --- | --- 
 **filename** | The user-visible name of the file to be created.
-**path** | The absolute path to the file.
 **id** | A unique identifier for a file or folder.
 **parent_id** | ID of the folder’s parent.
 **is_folder** | Flag indicating whether it is a folder or not.
@@ -329,7 +336,6 @@ FIELD |  DESCRIPTION
 ELEMENT |  DESCRIPTION
 --- | --- 
 **filename** | The user-visible name of the file to be created.
-**path** | The absolute path to the file.
 **id** | A unique identifier for a file or folder.
 **parent_id** | ID of the folder’s parent.
 **is_folder** | Flag indicating whether it is a folder or not.
@@ -408,7 +414,6 @@ FIELD |  DESCRIPTION
 ELEMENT |  DESCRIPTION
 --- | --- 
 **filename** | The user-visible name of the file to be created.
-**path** | The absolute path to the file.
 **id** | A unique identifier for a file or folder.
 **parent_id** | ID of the folder’s parent.
 **is_folder** | Flag indicating whether it is a folder or not.
@@ -446,7 +451,7 @@ Content-Length: 248
 ]
 }
 ```
-## Update file metada
+## Update file metadata
 
 An application can update various attributes of a file by issuing an HTTP PUT request to the URL that represents the file resource. In addition, the app needs to provide as input, JSON that identifies the new attribute values for the file. Upon receiving the PUT request, the StackSync service examines the input and updates any of the attributes that have been modified.
 Here are the file attributes that can be updated:
@@ -484,7 +489,7 @@ FIELD |  DESCRIPTION | REQUIRED
 
 #### HTTP Request Example
 
-```json
+```
 
 PUT /file/32565632156
  
@@ -513,7 +518,6 @@ FIELD |  DESCRIPTION
 ELEMENT |  DESCRIPTION
 --- | --- 
 **filename** | The user-visible name of the file to be created.
-**path** | The absolute path to the file.
 **id** | A unique identifier for a file or folder.
 **parent_id** | ID of the folder’s parent.
 **is_folder** | Flag indicating whether it is a folder or not.
@@ -596,7 +600,6 @@ FIELD |  DESCRIPTION
 ELEMENT |  DESCRIPTION
 --- | --- 
 **filename** | The user-visible name of the file to be created.
-**path** | The absolute path to the file.
 **id** | A unique identifier for a file or folder.
 **parent_id** | ID of the folder’s parent.
 **is_folder** | Flag indicating whether it is a folder or not.
@@ -632,62 +635,62 @@ Content-Length: 248
 "chunks":[
 ],
 "versions":[
-{
-"id":179,
-"parent_id":null,
-"filename":"hello.txt",
-"is_folder":false,
-"status":"CHANGED",
-"modified_at":"2014-07-17 10:18:13.609",
-"version":4,
-"checksum":3377466444,
-"size":32,
-"mimetype":"text/plain",
-"chunks":[
-]
-},
-{
-"id":179,
-"parent_id":null,
-"filename":"hello.txt",
-"is_folder":false,
-"status":"CHANGED",
-"modified_at":"2014-07-17 10:14:40.396",
-"version":3,
-"checksum":2978417559,
-"size":30,
-"mimetype":"text/plain",
-"chunks":[
-]
-},
-{
-"id":179,
-"parent_id":null,
-"filename":"hello.txt",
-"is_folder":false,
-"status":"CHANGED",
-"modified_at":"2014-06-26 11:52:58.251",
-"version":2,
-"checksum":623379771,
-"size":13,
-"mimetype":"text/plain",
-"chunks":[
-]
-},
-{
-"id":179,
-"parent_id":null,
-"filename":"hello.txt",
-"is_folder":false,
-"status":"NEW",
-"modified_at":"2014-06-26 11:52:58.251",
-"version":1,
-"checksum":310510519,
-"size":9,
-"mimetype":"text/plain",
-"chunks":[
-]
-}
+      {
+      "id":179,
+      "parent_id":null,
+      "filename":"hello.txt",
+      "is_folder":false,
+      "status":"CHANGED",
+      "modified_at":"2014-07-17 10:18:13.609",
+      "version":4,
+      "checksum":3377466444,
+      "size":32,
+      "mimetype":"text/plain",
+      "chunks":[
+      ]
+      },
+      {
+      "id":179,
+      "parent_id":null,
+      "filename":"hello.txt",
+      "is_folder":false,
+      "status":"CHANGED",
+      "modified_at":"2014-07-17 10:14:40.396",
+      "version":3,
+      "checksum":2978417559,
+      "size":30,
+      "mimetype":"text/plain",
+      "chunks":[
+      ]
+      },
+      {
+      "id":179,
+      "parent_id":null,
+      "filename":"hello.txt",
+      "is_folder":false,
+      "status":"CHANGED",
+      "modified_at":"2014-06-26 11:52:58.251",
+      "version":2,
+      "checksum":623379771,
+      "size":13,
+      "mimetype":"text/plain",
+      "chunks":[
+      ]
+      },
+      {
+      "id":179,
+      "parent_id":null,
+      "filename":"hello.txt",
+      "is_folder":false,
+      "status":"NEW",
+      "modified_at":"2014-06-26 11:52:58.251",
+      "version":1,
+      "checksum":310510519,
+      "size":9,
+      "mimetype":"text/plain",
+      "chunks":[
+      ]
+      }
 ]
 }
 
@@ -736,7 +739,6 @@ FIELD |  DESCRIPTION
 ELEMENT |  DESCRIPTION
 --- | --- 
 **filename** | The user-visible name of the file to be created.
-**path** | The absolute path to the file.
 **id** | A unique identifier for a file or folder.
 **parent_id** | ID of the folder’s parent.
 **is_folder** | Flag indicating whether it is a folder or not.
@@ -892,7 +894,6 @@ FIELD |  DESCRIPTION
 ELEMENT |  DESCRIPTION
 --- | --- 
 **filename** | The user-visible name of the file to be created.
-**path** | The absolute path to the file.
 **id** | A unique identifier for a file or folder.
 **parent_id** | ID of the folder’s parent.
 **is_folder** | Flag indicating whether it is a folder or not.
@@ -925,5 +926,595 @@ Location: https://domain.ext/stacksync/folder/9873615
 "size":0,
 "mimetype":"inode/directory""
 }
+
+```
+## Delete a folder
+
+An application can permanently delete a folder by issuing an HTTP DELETE request to the URL of the folder resource. It's a good idea to precede DELETE requests like this with a caution note in your application's user interface.
+
+### Request
+
+#### URL structure
+
+The URL that represents the file data resource. The URL begins with **/folder**, for example, **/folder/2148742318.**
+
+#### Method
+DELETE
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+
+#### HTTP Request Example
+
+```
+DELETE /folder/2148742318
+ 
+StackSync-API: v2
+```
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+
+#### Response example
+
+```json
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+
+{
+"id":2022,
+"parent_id":null,
+"filename":"tmp",
+"is_folder":true,
+"status":"DELETED",
+"modified_at":"Fri May 15 15:11:31 CEST 2015",
+"version":2,
+"checksum":0,
+"size":0,
+"mimetype":"inode/directory"
+}
+
+```
+
+## Get Folder Metadata
+
+To retrieve information about a folder, an application submits an HTTP GET request to the folder resource that represents the folder. To get information about the root folder, users must set the ID to “0” (i.e. /folder/0).
+
+### Request
+
+#### URL structure
+
+The URL that represents the file data resource. The URL begins with **/folder**, for example, **/folder/2148742318**.
+
+#### Method
+GET
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+
+#### HTTP Request Example
+
+```
+GET /folder/2148742318
+ 
+StackSync-API: v2
+```
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**is_root** | Flag indicating whether it is the root folder or not
+
+#### Response example
+
+```json
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+
+{
+"id":642,
+"parent_id":null,
+"filename":"test_folder_for_documtation",
+"is_folder":true,
+"status":"NEW",
+"modified_at":"2015-04-28 11:56:53.205",
+"version":1,
+"checksum":0,
+"size":0,
+"mimetype":"inode/directory",
+"is_root":false,
+"contents":[
+]
+}
+
+```
+
+## Get Folder Content Metadata
+
+To retrieve information about a folder, an application submits an HTTP GET request to the folder resource that represents the folder. To get information about the root folder, users must set the folder ID to “0” (i.e. /folder/0/contents).
+
+### Request
+
+#### URL structure
+
+The URL that represents the file data resource. The URL begins with **/folder**, followed by **/contents**, for example, **/folder/2148742318/contents**.
+
+#### Method
+GET
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+
+#### Request Query arguments
+JSON input that contains a dictionary with the following keys:
+
+FIELD |  VALUE | DECRIPTION
+--- | --- | ---
+**include_deleted** | true o false | False by default. If this parameter is set to true, then response will include metadata of deleted objects.
+
+#### HTTP Request Example
+```json
+GET /folder/2148742318/contents
+ 
+StackSync-API: v2
+```
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+The response body contains a JSON dictionary with the following keys:
+ELEMENT |  DESCRIPTION
+--- | --- 
+**folders** | A list with all the folders.
+**files** | A list with all the files.
+
+Each folder metadata is composed by:
+
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**is_root** | Flag indicating whether it is the root folder or not
+
+Each file metadata is compounded by:
+
+**filename** | The user-visible name of the file to be created.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**chunks** | Name list of created chunks
+
+#### Response example
+
+```json
+
+{
+"id":null,
+"parent_id":null,
+"filename":"root",
+"is_folder":true,
+"status":null,
+"version":null,
+"checksum":null,
+"size":null,
+"mimetype":null,
+"is_root":true,
+"contents":[
+    {
+    "id":628,
+    "parent_id":null,
+    "filename":"hola",
+    "is_folder":true,
+    "status":"RENAMED",
+    "modified_at":"2015-04-14 11:41:07.65",
+    "version":2,
+    "checksum":0,
+    "size":0,
+    "mimetype":"inode/directory",
+    "is_root":false
+    },
+    {
+    "id":630,
+    "parent_id":null,
+    "filename":"datos_reviewers_eyeos",
+    "is_folder":false,
+    "status":"NEW",
+    "modified_at":"2014-11-03 12:51:18.0",
+    "version":1,
+    "checksum":2082568738,
+    "size":349,
+    "mimetype":"text/plain",
+    "chunks":[
+    ]
+    }
+]
+}
+
+```
+
+## Update folder metadata
+
+An application can update various attributes of a folder by issuing an HTTP PUT request to the URL that represents the folder resource. In addition, the app needs to provide as input, JSON that identifies the new attribute values for the folder. Upon receiving the PUT request, the StackSync service examines the input and updates any of the attributes that have been modified.
+
+Here are the file attributes that can be updated:
+ * name
+ * parent
+No other file attributes can be modified using a PUT request.
+
+**Note:** An application can move a file to a different parent folder by changing the value of the parent element.
+
+### Request
+
+#### URL structure
+The URL that represents the file data resource. The URL begins with **/file**, and ends with the file ID, for example, **/file/2148742318**.
+
+#### Method
+PUT
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+**Content-Length** | The length of the request body.
+**Content-Type** | The content type and character encoding of the response. The content type must be **application/json**, and the character encoding must be **UTF-8**.
+
+#### Request Body
+JSON input that contains a dictionary with the following keys:
+
+FIELD |  DESCRIPTION | REQUIRED
+--- | --- | ---
+**name** | The user-visible name of the file to be created. | NO
+**parent** | ID of the folder where the file is going to be created. If no ID is passed, it will use the top-level folder. This parameter should **not** point to a file. | No
+
+#### HTTP Request Example
+
+```
+
+POST /folder/2148742318
+
+StackSync-API: v2
+Content-Length: 294
+Content-Type: application/json
+
+{
+     “name”: “clients_2”,
+     “parent”:12386548974
+}
+
+```
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+**Location** | The location of the newly created file.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+
+#### Response example
+
+```json
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+Location: https://domain.ext/stacksync/file/
+
+{
+"id":628,
+"parent_id":null,
+"filename":"hola",
+"is_folder":true,
+"status":"RENAMED",
+"modified_at":"Tue Apr 14 11:41:07 CEST 2015",
+"version":2,
+"checksum":0,
+"size":0,
+"mimetype":"inode/directory"
+}
+
+```
+## Share a folder
+
+An application can share a folder with other users by issuing an HTTP POST request to the URL that represents the folder resource. The app must provide a JSON object that represents the users that will be invited to the folder.
+
+### Request
+
+#### URL structure
+
+The URL that represents the file data resource. The URL begins with **/folder**, follows with the file ID, and ends with **/share**, for example, **/folder/214874/share**.
+
+#### Method
+POST
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+**Content-Length** | The length of the request body.
+**Content-Type** | The content type and character encoding of the response. The content type must be **application/json**, and the character encoding must be **UTF-8**.
+
+#### Request Body
+JSON input that contains a dictionary with the following keys:
+
+FIELD |  DESCRIPTION | REQUIRED
+--- | --- | ---
+**share_to** |Array of emails representing the users that will be invited to the shared folder. | Yes
+
+#### HTTP Request Example
+```
+POST /folder/214874/share
+
+StackSync-API: v2
+Content-Length: 294
+Content-Type: application/json
+
+[“john.doe@yahoo.com”, “walter.smith@stacksync.com”, “foo@bar.com”]
+```
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response example
+
+```json
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 0
+
+["shared_to":“john.doe@yahoo.com”, “walter.smith@stacksync.com”, “foo@bar.com”]
+```
+## Unshare a folder
+
+An application can unshare a folder with other users by issuing an HTTP POST request to the URL that represents the folder resource. The app must provide a JSON object that represents the users that will be remove to the folder.
+
+### Request
+
+#### URL structure
+
+The URL that represents the file data resource. The URL begins with **/folder**, follows with the file ID, and ends with **/unshare**, for example, **/folder/214874/unshare**.
+
+#### Method
+POST
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+**Content-Length** | The length of the request body.
+**Content-Type** | The content type and character encoding of the response. The content type must be **application/json**, and the character encoding must be **UTF-8**.
+
+#### Request Body
+JSON input that contains a dictionary with the following keys:
+
+FIELD |  DESCRIPTION | REQUIRED
+--- | --- | ---
+**unshare_to** |Array of emails representing the users that will be invited to the shared folder. | Yes
+
+#### HTTP Request Example
+```
+POST /folder/214874/unshare
+
+StackSync-API: v2
+Content-Length: 294
+Content-Type: application/json
+
+[“john.doe@yahoo.com”, “walter.smith@stacksync.com”, “foo@bar.com”]
+```
+
+#### Errors and Decisions
+ * An invited user can’t unshare the folder with its owner. Error response: [{"error":400,"description":"Email a@a.a corresponds with owner of the folder."}] 
+ * User can not unshare himself the folder. If the email list contains more emails than his email, his email will be discarded and the other users will be removed from the shared folder. NOT ERROR RESPONSE.
+ * If the email list is empty or not contains any valid email. Error response: [{"error":400,"description":"No addressees found"}] 
+ * If email list contains some email that not corresponds to any user, this email will be discarded. 
+
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response example
+
+```json
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 0
+
+["unshared_to":“john.doe@yahoo.com”, “walter.smith@stacksync.com”, “foo@bar.com”]
+```
+## Get folder members
+
+To retrieve information about the users that have access to a folder, an application submits an HTTP GET request to the folder resource that represents the folder. 
+
+### Request
+
+#### URL structure
+The URL that represents the file data resource. The URL begins with **/folder**, followed by the ID of the folder, and ending with **/members**, for example, **/folder/2148742/members**.
+
+#### Method
+GET
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+
+#### Request Body
+JSON input that contains a dictionary with the following keys:
+
+FIELD |  DESCRIPTION | REQUIRED
+--- | --- | ---
+**name** | The user-visible name of the file to be created. | NO
+**parent** | ID of the folder where the file is going to be created. If no ID is passed, it will use the top-level folder. This parameter should **not** point to a file. | No
+
+#### HTTP Request Example
+
+```
+GET /folder/2148742/members
+ 
+StackSync-API: v2
+```
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+The response body contains a JSON array enclosing dictionaries with the following keys:
+
+ELEMENT |  DESCRIPTION
+--- | --- 
+**name** | The name of the user
+**email** | The email of the user
+**joned_at** | The date the user joined the folder
+**is_owner** | Whether the user is the owner of the folder or not. Options are **True** or **False**.
+
+#### Response example
+
+```json
+
+[
+	{
+		"name":"John Doe",
+		"email":"john.doe@yahoo.com",
+		"joined_at":"2014-04-11 10:02:33.432",
+		"is_owner":true
+	},
+	{
+		"name":"Walter Smith",
+		"email":"walter.smith@stacksync.com",
+		"joined_at":"2014-05-30 19:39:21.044",
+		"is_owner":false
+	},
+	{
+		"name":"Foo Bar",
+		"email":"foo@bar.com",
+		"joined_at":"2014-06-06 15:42:41.852",
+		"is_owner":false
+	}
+]
 
 ```
