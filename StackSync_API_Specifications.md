@@ -11,6 +11,10 @@ StackSync API Specification
   - [Delete a file](#delete-a-file)
   - [Get file metadata](#get-file-metadata)
   - [Update file metadata](#update-file-metadata)
+- [Versions](#versions)
+  - [Get file versions](#get-file-versions)
+  - [Get file version metadata](#get-file-version-metadata)
+  - [Get file version data](#get-file-version-data)
 
 #Authentication
 
@@ -545,5 +549,284 @@ Location: https://domain.ext/stacksync/file/
 "chk-91DD3E155628E931EFB01B0F6BB121A7C21910DE-3836471730894233428"
 ]
 }
+
+```
+#Versions
+
+## Get file versions
+
+To retrieve information about a file version, an application submits an HTTP GET request to the file version resource.
+
+### Request
+
+#### URL structure
+The URL that represents the file data resource. The URL begins with **/file**, and ends with **/version**, for example, **/file/2148742318/versions**.
+
+#### Method
+GET
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+
+#### HTTP Request Example
+
+```
+GET https://domain.ext/stacksync/file/2148742318/versions
+ 
+StackSync-API: v2
+```
+
+
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**path** | The absolute path to the file.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**chunks** | Name list of created chunks
+**versions** | A list of all versions
+
+#### Response example
+
+```json
+
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+
+{
+"id":179,
+"parent_id":null,
+"filename":"hello.txt",
+"is_folder":false,
+"status":"CHANGED",
+"modified_at":"2015-02-06 10:16:25.693",
+"version":5,
+"checksum":4015131941,
+"size":35,
+"mimetype":"text/plain",
+"chunks":[
+],
+"versions":[
+{
+"id":179,
+"parent_id":null,
+"filename":"hello.txt",
+"is_folder":false,
+"status":"CHANGED",
+"modified_at":"2014-07-17 10:18:13.609",
+"version":4,
+"checksum":3377466444,
+"size":32,
+"mimetype":"text/plain",
+"chunks":[
+]
+},
+{
+"id":179,
+"parent_id":null,
+"filename":"hello.txt",
+"is_folder":false,
+"status":"CHANGED",
+"modified_at":"2014-07-17 10:14:40.396",
+"version":3,
+"checksum":2978417559,
+"size":30,
+"mimetype":"text/plain",
+"chunks":[
+]
+},
+{
+"id":179,
+"parent_id":null,
+"filename":"hello.txt",
+"is_folder":false,
+"status":"CHANGED",
+"modified_at":"2014-06-26 11:52:58.251",
+"version":2,
+"checksum":623379771,
+"size":13,
+"mimetype":"text/plain",
+"chunks":[
+]
+},
+{
+"id":179,
+"parent_id":null,
+"filename":"hello.txt",
+"is_folder":false,
+"status":"NEW",
+"modified_at":"2014-06-26 11:52:58.251",
+"version":1,
+"checksum":310510519,
+"size":9,
+"mimetype":"text/plain",
+"chunks":[
+]
+}
+]
+}
+
+```
+
+## Get file version metadata
+
+To retrieve information about a file version, an application submits an HTTP GET request to the file version resource.
+
+### Request
+
+#### URL structure
+The URL that represents the file data resource. The URL begins with **/file**, and ends with **/version/version-number**, for example, **/file/2148742318/version/2**.
+
+#### Method
+GET
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+
+#### HTTP Request Example
+
+```
+GET /file/2148742318/version/2
+ 
+StackSync-API: v2
+```
+
+
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+ELEMENT |  DESCRIPTION
+--- | --- 
+**filename** | The user-visible name of the file to be created.
+**path** | The absolute path to the file.
+**id** | A unique identifier for a file or folder.
+**parent_id** | ID of the folder’s parent.
+**is_folder** | Flag indicating whether it is a folder or not.
+**status** | Possible values are “NEW”, “CHANGED”, “DELETED”. Indicating the status of the file in this specific version.
+**version** | A unique identifier for the current version of a file. Can be used to detect changes and avoid conflicts.
+**checksum** | The file’s checksum.
+**size** | The file size in bytes.
+**mimetype** | The media type of the file. http://www.iana.org/assignments/media-types
+**modified_at** | This is the modification time set by the server at the time of processing the file.
+**chunks** | Name list of created chunks
+
+#### Response example
+
+```json
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+
+{
+"id":179,
+"parent_id":null,
+"filename":"hello.txt",
+"is_folder":false,
+"status":"NEW",
+"modified_at":"2014-06-26 11:52:58.251",
+"version":1,
+"checksum":310510519,
+"size":9,
+"mimetype":"text/plain",
+"chunks":[
+],
+"contents":[
+]
+}
+
+```
+
+## Get file version data
+
+To retrieve data about a file version, an application submits an HTTP GET request to the file version resource.
+
+### Request
+
+#### URL structure
+The URL that represents the file data resource. The URL begins with */file*, and ends with */version/version-number/data*, for example, */file/2148742318/version/2/data*.
+
+
+#### Method
+GET
+
+#### Request Headers
+
+The request header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**StackSync-API** | API version. The value must be **v2**.
+
+#### HTTP Request Example
+
+```
+GET /file/2148742318/version/2/data
+ 
+StackSync-API: v2
+```
+
+
+### Response
+#### Response Header
+
+The response header includes the following information:
+
+FIELD |  DESCRIPTION
+--- | --- 
+**Content-Length** | The length of the retrieved content.
+**Content-Type** | The content type and character encoding of the response.
+
+#### Response Body
+The response body contains the retrieved file data.
+
+
+#### Response example
+
+```json
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Content-Length: 248
+
+<File content…. >
 
 ```
