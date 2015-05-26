@@ -11,8 +11,8 @@ import urllib
 from urlparse import parse_qs
 
 #BASE_URL = "http://10.30.239.237:8080/oauth"
-BASE_URL = 'http://localhost:8080/v1'
-BASE_URL_OAUTH = "http://10.30.233.214:8080/oauth"
+BASE_URL = 'http://10.30.238.232:8080/v1'
+BASE_URL_OAUTH = "http://10.30.238.232:8080/oauth"
 CLIENT_KEY = "b3af4e669daf880fb16563e6f36051b105188d413"
 CLIENT_SECRET = "c168e65c18d75b35d8999b534a3776cf"
 REQUEST_TOKEN_ENDPOINT = "/request_token"
@@ -24,32 +24,32 @@ client = oauth1.Client(CLIENT_KEY,
                        client_secret=CLIENT_SECRET,
                        signature_type=SIGNATURE_TYPE_QUERY,
                        signature_method=SIGNATURE_PLAINTEXT,
-                       resource_owner_key='GmOFBjhSzC0A2rxrnM6gQWKnm6m3Ew',
-                       resource_owner_secret='RtA8hMYzgxnpoMxd8kBUtVQmcSvM4D')
+                       resource_owner_key='jBA2wUcPgCUezpPNSNnhOA4h5ZWJyZ',
+                       resource_owner_secret='o2NyFGYnk7JqOOwDeMAXrNMZBzARgo')
 
 
 
 
 # Main definition - constants
-menu_actions  = {}  
- 
+menu_actions  = {}
+
 # =======================
 #     MENUS FUNCTIONS
 # =======================
- 
+
 # Main menu
 def main_menu():
     os.system('clear')
-    
+
     print "Welcome,\n"
     print "Please choose the menu you want to start:"
     print "1. Menu 1"
     print "\n0. Quit"
     choice = raw_input(" >>  ")
     exec_menu(choice)
- 
+
     return
- 
+
 # Execute menu
 def exec_menu(choice):
     os.system('clear')
@@ -63,7 +63,7 @@ def exec_menu(choice):
             print "Invalid selection, please try again.\n"
             menu_actions['main_menu']()
     return
- 
+
 # Menu 1
 def menu1():
     while True:
@@ -79,11 +79,12 @@ def menu1():
         print "10. Update folder metadata"
         print "11. Delete a file"
         print "12. Get folder"
+        print "13. Upload a new File"
         print "0. Quit"
         choice = raw_input(" >>  ")
         exec_menu(choice)
     return
-  
+
 # Back to main menu
 def back():
     menu_actions['main_menu']()
@@ -97,7 +98,7 @@ def create_new_file():
 	else:
 	    url = BASE_URL +"/file?name="+name
 	uri, headers, _ = client.sign(url, http_method='GET')
-	
+
 	content_file = raw_input("Content file:  ")
         headers['StackSync-API'] = "v2"
         headers['Content-Type'] = "text/plain"
@@ -107,6 +108,27 @@ def create_new_file():
         print 'response', r.text
     else:
     	print 'Can not create a new file without name'
+
+def upload_new_file():
+    name = raw_input("File name:  ")
+    if name:
+        parent = raw_input("Parent id:  ")
+	if parent:
+	    url = BASE_URL +"/file?name="+name+"&parent="+parent
+	else:
+	    url = BASE_URL +"/file?name="+name
+        uri, headers, _ = client.sign(url, http_method='GET')
+        path = raw_input("Absolute path of the file:  ")
+        #with open (path, "r") as myfile:
+        #    data=myfile.read()
+        files = {'file': open(path, 'rb')}
+        headers['StackSync-API'] = "v2"
+        r = requests.post(uri, files=files, headers=headers)
+        print 'response', r
+        print 'response', r.text
+    else:
+    	print 'Can not create a new file without name'
+
 
 def update_file_data():
     file_id = raw_input("File id:  ")
@@ -126,7 +148,7 @@ def update_file_metadata():
     uri, headers, _ = client.sign(url, http_method='GET')
     new_name = raw_input("New name:  ")
     new_parent = raw_input("New parent id: ")
-    if not new_name and not new_parent:	
+    if not new_name and not new_parent:
 	print 'Can not update metadata without any parameter'
     else:
 	if not new_parent:
@@ -156,7 +178,7 @@ def get_file_data():
     file_id = raw_input("File id:  ")
     url = BASE_URL +'/file/'+str(file_id)+'/data'
     uri, headers, _ = client.sign(url, http_method='GET')
-    headers['StackSync-API'] = "v2"  
+    headers['StackSync-API'] = "v2"
     headers['Content-Type'] = "application/json"
     r = requests.get(uri, headers=headers)
     print 'response', r
@@ -166,7 +188,7 @@ def create_new_folder():
     uri, headers, _ = client.sign(url, http_method='GET')
     new_name = raw_input("Name:  ")
     new_parent = raw_input("Parent id: ")
-    if not new_name:	
+    if not new_name:
 	print 'Can not create folder without name'
     else:
 	if not new_parent:
@@ -182,24 +204,24 @@ def share_folder():
     file_id = raw_input("File id:  ")
     url = BASE_URL +'/folder/'+str(file_id)+'/share'
     uri, headers, _ = client.sign(url, http_method='GET')
-    headers['StackSync-API'] = "v2"  
+    headers['StackSync-API'] = "v2"
     headers['Content-Type'] = "application/json"
     emails = raw_input("mails to share (separated by comma):  ")
     shared_to = emails.split(",")
     r = requests.post(uri, json.dumps(shared_to), headers=headers)
     print 'response', r
-    print 'response', r.text    
+    print 'response', r.text
 def unshare_folder():
     file_id = raw_input("File id:  ")
     url = BASE_URL +'/folder/'+str(file_id)+'/unshare'
     uri, headers, _ = client.sign(url, http_method='GET')
-    headers['StackSync-API'] = "v2"  
+    headers['StackSync-API'] = "v2"
     headers['Content-Type'] = "application/json"
     emails = raw_input("mails to unshare (separated by comma):  ")
     shared_to = emails.split(",")
     r = requests.post(uri, json.dumps(shared_to), headers=headers)
     print 'response', r
-    print 'response', r.text   
+    print 'response', r.text
 
 def update_folder_metadata():
     folder_id = raw_input("Folder id:  ")
@@ -207,7 +229,7 @@ def update_folder_metadata():
     uri, headers, _ = client.sign(url, http_method='GET')
     new_name = raw_input("New name:  ")
     new_parent = raw_input("New parent id: ")
-    if not new_name and not new_parent:	
+    if not new_name and not new_parent:
 	print 'Can not update metadata without any parameter'
     else:
 	if not new_parent:
@@ -242,7 +264,7 @@ def get_folder():
     uri, headers, _ = client.sign(url,
                                    http_method='GET')
     headers['StackSync-API'] = "v2"
-    
+
     headers['Content-Type'] = "text/plain"
     r = requests.get(uri, headers=headers)
     print 'response status', r
@@ -252,11 +274,11 @@ def get_folder():
 # Exit program
 def exit():
     sys.exit()
- 
+
 # =======================
 #    MENUS DEFINITIONS
 # =======================
- 
+
 # Menu definition
 menu_actions = {
     'main_menu': main_menu,
@@ -272,13 +294,14 @@ menu_actions = {
     '10': update_folder_metadata,
     '11': delete_file,
     '12': get_folder,
+    '13': upload_new_file,
     '0': exit,
 }
- 
+
 # =======================
 #      MAIN PROGRAM
 # =======================
- 
+
 # Main Program
 if __name__ == "__main__":
     # Launch main menu

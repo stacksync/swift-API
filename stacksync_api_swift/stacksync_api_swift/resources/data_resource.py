@@ -55,14 +55,25 @@ def PUT(request, api_library, app):
 
         workspace_info = json.loads(workspace_info)
         old_chunks = file_metadata['chunks']
-	app.logger.error("StackSync API: old_chunks: %s", old_chunks)
+	app.logger.info("StackSync API: old_chunks: %s", old_chunks)
         container_name = workspace_info['swift_container']
+
+        #Take the quota information
+        quota_limit = long(workspace_info['quota_limit'])
+        quota_used = long(workspace_info['quota_used'])
+        old_file_size = long(file_metadata['size'])
+
+        #check if the new file exced the quota limit
+        quota_used = quota_used - size
+        quota_used_after_put = quota_used + long(len(content))
+        if (quota_used_after_put > quota_limit):
+            return create_error_response(413, "Upload exceeds quota.")
+
         chunked_file = BuildFile(content, [])
         chunked_file.separate(file_id)
-        print 'new chunks', chunked_file.chunk_dict.keys() 
         chunks_diff_remove = list(set(old_chunks) - set(chunked_file.chunk_dict.keys()))
         data_handler = DataHandler(app)
-        
+
         #delete old chunks
         response = data_handler.remove_old_chunks(request.environ, chunks_diff_remove, container_name)
         if not is_valid_status(response.status_int):
@@ -72,12 +83,12 @@ def PUT(request, api_library, app):
             return create_error_response(500, "Could not upload chunks to storage backend.")
         #upload new chunks
         chunks_diff_add = list(set(chunked_file.chunk_dict.keys())-set(old_chunks))
-        chunks_no_diff =  list(set(chunked_file.chunk_dict.keys())-set(chunks_diff_add))                  
-        
+        chunks_no_diff =  list(set(chunked_file.chunk_dict.keys())-set(chunks_diff_add))
+
         for key in chunks_no_diff:
             del chunked_file.chunk_dict[key]
         response = data_handler.upload_file_chunks(request.environ, chunked_file, container_name)
-        
+
         if not is_valid_status(response.status_int):
             app.logger.error("StackSync API: data_resource PUT: error uploading file chunks: %s path info: %s",
                              str(response.status),
@@ -166,9 +177,3 @@ def GET(request, api_library, app):
         app.logger.error("StackSync API: data_resource GET: Cannot retrieve chunks. File_id: %s. Status: %s",
                          str(file_id), str(status))
         return create_error_response(status, "Cannot retrieve chunks from storage backend.")
-
-
-
-
-
-

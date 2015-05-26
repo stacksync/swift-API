@@ -59,6 +59,15 @@ def POST(request, api_library, app):
 
         workspace_info = json.loads(workspace_info)
         container_name = workspace_info['swift_container']
+        #Take the quota information
+        quota_used = long(workspace_info['quota_used'])
+        quota_limit = long(workspace_info['quota_limit'])
+
+        #check if the new file exced the quota limit
+        quota_used_after_put = long(quota_used) + long(len(content))
+        if (quota_used_after_put > quota_limit):
+            return create_error_response(413, "Upload exceeds quota.")
+
         chunked_file = BuildFile(content, [])
         chunked_file.separate()
 
@@ -111,7 +120,7 @@ def DELETE(request, api_library, app):
         app.logger.error("StackSync API: file_resource DELETE: Wrong resource path: %s path_info: %s", str(400),
                          str(request.path_info))
         return create_error_response(400, "Wrong resource path. Expected /file/:file_id")
-    
+
     app.logger.info('StackSync API: file_resource DELETE: path info: %s', request.path_info)
     user_id = request.environ["stacksync_user_id"]
 
@@ -131,7 +140,7 @@ def DELETE(request, api_library, app):
         return response
 
     workspace_info = json.loads(workspace_info)
-    data_handler = DataHandler(app)   
+    data_handler = DataHandler(app)
     file_metadata = json.loads(message)
     container_name = workspace_info['swift_container']
     response = data_handler.remove_old_chunks(request.environ, file_metadata['chunks'], container_name)
@@ -140,7 +149,7 @@ def DELETE(request, api_library, app):
         app.logger.error("StackSync API: data_resource DELETE: status code: %s. body: %s", str(response.status_int),
                          str(response.body))
         return response
-    
+
     message_delete = api_library.delete_item(user_id, file_id, is_folder=False)
 
     response = create_response(message_delete, status_code=200)
