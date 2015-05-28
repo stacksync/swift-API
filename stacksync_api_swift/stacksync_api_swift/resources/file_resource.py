@@ -5,6 +5,7 @@ from stacksync_api_swift.resources.resource_util import create_response, is_vali
 import json
 import zlib
 import magic
+import random
 
 
 def POST(request, api_library, app):
@@ -67,15 +68,16 @@ def POST(request, api_library, app):
         quota_used_after_put = long(quota_used) + long(len(content))
         if (quota_used_after_put > quota_limit):
             return create_error_response(413, "Upload exceeds quota.")
-
+            
         chunked_file = BuildFile(content, [])
-        chunked_file.separate()
+        tmp_file_id = str(random.getrandbits(64))
+        chunked_file.separate(tmp_file_id)
 
         data_handler = DataHandler(app)
 
         response = data_handler.upload_file_chunks(request.environ, chunked_file, container_name)
 
-        chunks = chunked_file.chunk_dict.keys()
+        chunks = chunked_file.name_list
         checksum = str((zlib.adler32(content) & 0xffffffff))
         file_size = len(content)
         mimetype = magic.from_buffer(content, mime=True)

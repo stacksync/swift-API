@@ -7,15 +7,21 @@ import random
 CHUNK_SIZE = 524288
 
 
+import StringIO
+from cStringIO import StringIO as strIO
+from gzip import GzipFile
+from hashlib import sha1
+
+CHUNK_SIZE = 524288
+
+
 class Chunk(object):
 
-    def __init__(self, checksum):
+    def __init__(self, checksum, file_id):
         self.checksum = checksum.upper()
-
-    def get_filename(self, file_id):
-	if file_id:
-	    return "chk-" + self.checksum +"-"+str(file_id)
-        return "chk-" + self.checksum +"-"+str(random.getrandbits(64))
+        self.file_id = file_id
+    def get_filename(self):
+        return "chk-" + self.checksum +"-"+ self.file_id
 
 
 def get_sha1_hash(data):
@@ -34,7 +40,6 @@ class BuildFile(object):
         self.hash_list = []
         self.content = content
         self.chunks = chunks
-        self.chunk_dict = {}
 
     def join(self):
         self.content = ""
@@ -45,7 +50,7 @@ class BuildFile(object):
 
             self.content += temp
 
-    def separate(self, file_id=None):
+    def separate(self, file_id):
         num_chunks = int(len(self.content)/CHUNK_SIZE)
         self.name_list = []
 
@@ -54,8 +59,9 @@ class BuildFile(object):
             for i in range(num_chunks):
                 data = self.content[i*CHUNK_SIZE:(i+1)*CHUNK_SIZE]
                 checksum = get_sha1_hash(data)
-                chunk_object = Chunk(checksum)
-                
+                chunk_object = Chunk(checksum, file_id)
+                self.name_list.append(chunk_object.get_filename())
+                self.hash_list.append(checksum.upper())
                 # compress chunks process
                 buf = strIO()
                 f = GzipFile(mode='wb', fileobj=buf)
@@ -67,7 +73,6 @@ class BuildFile(object):
 
                 self.chunks.append(chunk)
                 last_index = i
-                self.chunk_dict[chunk_object.get_filename(file_id)] = [checksum.upper(), chunk]
 
             data = self.content[(last_index+1)*CHUNK_SIZE:]
         else:
@@ -76,7 +81,9 @@ class BuildFile(object):
         # FIXME: Do not repeat code, handle the last chunk differently
         if len(data) > 0:
             checksum = get_sha1_hash(data)
-            chunk_object = Chunk(checksum)
+            chunk_object = Chunk(checksum, file_id)
+            self.name_list.append(chunk_object.get_filename())
+            self.hash_list.append(checksum.upper())
             buf = strIO()
             f = GzipFile(mode='wb', fileobj=buf)
             try:
@@ -86,5 +93,3 @@ class BuildFile(object):
             chunk = buf.getvalue()
 
             self.chunks.append(chunk)
-            self.chunk_dict[chunk_object.get_filename(file_id)] = [checksum.upper(), chunk]
-

@@ -15,9 +15,9 @@ class DataHandler(object):
         error = False
         self.app.logger.info('StackSync API: upload_file_chunks: container: %s', str(container))
         upload_chunks = []
-	for k, v in chunked_file.chunk_dict.iteritems():
-            chunk_name = k
-            chunk_content = v[1]
+	for i in range(len(chunked_file.chunks)):
+            chunk_name = chunked_file.name_list[i-1]
+            chunk_content = chunked_file.chunks[i-1]
 
             env_aux = env.copy()
             new_path = "/v1/" + env['stacksync_user_account'] + "/" + container + "/" + chunk_name

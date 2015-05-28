@@ -11,8 +11,8 @@ import urllib
 from urlparse import parse_qs
 
 #BASE_URL = "http://10.30.239.237:8080/oauth"
-BASE_URL = 'http://10.30.238.232:8080/v1'
-BASE_URL_OAUTH = "http://10.30.238.232:8080/oauth"
+BASE_URL = 'http://10.30.235.91:8080/v1'
+BASE_URL_OAUTH = "http://10.30.235.91:8080/oauth"
 CLIENT_KEY = "b3af4e669daf880fb16563e6f36051b105188d413"
 CLIENT_SECRET = "c168e65c18d75b35d8999b534a3776cf"
 REQUEST_TOKEN_ENDPOINT = "/request_token"
@@ -24,8 +24,8 @@ client = oauth1.Client(CLIENT_KEY,
                        client_secret=CLIENT_SECRET,
                        signature_type=SIGNATURE_TYPE_QUERY,
                        signature_method=SIGNATURE_PLAINTEXT,
-                       resource_owner_key='jBA2wUcPgCUezpPNSNnhOA4h5ZWJyZ',
-                       resource_owner_secret='o2NyFGYnk7JqOOwDeMAXrNMZBzARgo')
+                       resource_owner_key='diFqb6CkxcFeSE3OHLdJRLS5TiN9X5',
+                       resource_owner_secret='4Tk4fYabfalS3OO7TLaxqYTUaULy7u')
 
 
 
@@ -119,11 +119,11 @@ def upload_new_file():
 	    url = BASE_URL +"/file?name="+name
         uri, headers, _ = client.sign(url, http_method='GET')
         path = raw_input("Absolute path of the file:  ")
-        #with open (path, "r") as myfile:
-        #    data=myfile.read()
-        files = {'file': open(path, 'rb')}
+        with open (path, "r") as myfile:
+            data=myfile.read()
+        #files = {'file': open(path, 'rb')}
         headers['StackSync-API'] = "v2"
-        r = requests.post(uri, files=files, headers=headers)
+        r = requests.post(uri, data=data, headers=headers)
         print 'response', r
         print 'response', r.text
     else:
