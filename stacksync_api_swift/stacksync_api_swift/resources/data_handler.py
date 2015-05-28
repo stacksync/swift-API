@@ -15,7 +15,7 @@ class DataHandler(object):
         error = False
         self.app.logger.info('StackSync API: upload_file_chunks: container: %s', str(container))
         upload_chunks = []
-	for i in range(len(chunked_file.chunks)):
+        for i in range(len(chunked_file.chunks)):
             chunk_name = chunked_file.name_list[i-1]
             chunk_content = chunked_file.chunks[i-1]
 

@@ -55,40 +55,33 @@ def PUT(request, api_library, app):
 
         workspace_info = json.loads(workspace_info)
         old_chunks = file_metadata['chunks']
-	app.logger.info("StackSync API: old_chunks: %s", old_chunks)
+        app.logger.info("StackSync API: old_chunks: %s", old_chunks)
         container_name = workspace_info['swift_container']
 
-        #Take the quota information
+        #Get the quota information
         quota_limit = long(workspace_info['quota_limit'])
         quota_used = long(workspace_info['quota_used'])
         old_file_size = long(file_metadata['size'])
 
-        #check if the new file exced the quota limit
-        quota_used = quota_used - size
+        #check if the new file exceed the quota limit
+        quota_used = quota_used - old_file_size
         quota_used_after_put = quota_used + long(len(content))
         if (quota_used_after_put > quota_limit):
             return create_error_response(413, "Upload exceeds quota.")
 
         chunked_file = BuildFile(content, [])
         chunked_file.separate(file_id)
-        chunks_diff_remove = list(set(old_chunks) - set(chunked_file.name_list))
+        chunks_to_remove = list(set(old_chunks) - set(chunked_file.name_list))
         data_handler = DataHandler(app)
-
-        #delete old chunks
-        response = data_handler.remove_old_chunks(request.environ, chunks_diff_remove, container_name)
-        if not is_valid_status(response.status_int):
-            app.logger.error("StackSync API: data_resource PUT: error uploading file chunks: %s path info: %s",
-                             str(response.status),
-                             str(request.path_info))
-            return create_error_response(500, "Could not upload chunks to storage backend.")
+        
         #upload new chunks
         chunks_to_upload = list(set(chunked_file.name_list)-set(old_chunks))
         chunks_already_uploaded =  list(set(chunked_file.name_list)-set(chunks_to_upload))
 
         chunks = chunked_file.name_list.copy()
 
-        for key in chunks_already_uploaded:
-            index = chunked_file.name_list.index(key)
+        for chunk_name in chunks_already_uploaded:
+            index = chunked_file.name_list.index(chunk_name)
             del chunked_file.name_list[index]
             del chunked_file.chunks[index]
         response = data_handler.upload_file_chunks(request.environ, chunked_file, container_name)
@@ -99,7 +92,6 @@ def PUT(request, api_library, app):
                              str(request.path_info))
             return create_error_response(500, "Could not upload chunks to storage backend.")
 
-        chunks = chunked_file.name_list
         checksum = str((zlib.adler32(content) & 0xffffffff))
         file_size = str(len(content))
         mimetype = magic.from_buffer(content, mime=True)
@@ -111,13 +103,21 @@ def PUT(request, api_library, app):
         file_size = 0
         mimetype = 'inode/x-empty'
 
-    message_new_version = api_library.update_data(user_id, file_id, checksum, file_size, mimetype, chunks)
+    new_version_response = api_library.update_data(user_id, file_id, checksum, file_size, mimetype, chunks)
 
-    response = create_response(message_new_version, status_code=201)
+    response = create_response(new_version_response, status_code=201)
     if not is_valid_status(response.status_int):
         app.logger.error("StackSync API: data_resource PUT: error updating data in StackSync Server: %s. body: %s",
                          str(response.status_int),
                          str(response.body))
+    else:
+        #delete old chunks
+        response = data_handler.remove_old_chunks(request.environ, chunks_to_remove, container_name)
+        if not is_valid_status(response.status_int):
+            app.logger.error("StackSync API: data_resource PUT: error uploading file chunks: %s path info: %s",
+                             str(response.status),
+                             str(request.path_info))
+            return create_error_response(500, "Could not upload chunks to storage backend.")
 
     return response
 
