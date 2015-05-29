@@ -73,12 +73,12 @@ def PUT(request, api_library, app):
         chunked_file.separate(file_id)
         chunks_to_remove = list(set(old_chunks) - set(chunked_file.name_list))
         data_handler = DataHandler(app)
-        
+
         #upload new chunks
         chunks_to_upload = list(set(chunked_file.name_list)-set(old_chunks))
         chunks_already_uploaded =  list(set(chunked_file.name_list)-set(chunks_to_upload))
 
-        chunks = chunked_file.name_list.copy()
+        chunks = list(chunked_file.name_list)
 
         for chunk_name in chunks_already_uploaded:
             index = chunked_file.name_list.index(chunk_name)

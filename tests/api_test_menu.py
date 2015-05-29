@@ -11,8 +11,8 @@ import urllib
 from urlparse import parse_qs
 
 #BASE_URL = "http://10.30.239.237:8080/oauth"
-BASE_URL = 'http://10.30.235.91:8080/v1'
-BASE_URL_OAUTH = "http://10.30.235.91:8080/oauth"
+BASE_URL = 'http://10.30.238.232:8080/v1'
+BASE_URL_OAUTH = "http://10.30.238.232:8080/oauth"
 CLIENT_KEY = "b3af4e669daf880fb16563e6f36051b105188d413"
 CLIENT_SECRET = "c168e65c18d75b35d8999b534a3776cf"
 REQUEST_TOKEN_ENDPOINT = "/request_token"
@@ -24,8 +24,8 @@ client = oauth1.Client(CLIENT_KEY,
                        client_secret=CLIENT_SECRET,
                        signature_type=SIGNATURE_TYPE_QUERY,
                        signature_method=SIGNATURE_PLAINTEXT,
-                       resource_owner_key='diFqb6CkxcFeSE3OHLdJRLS5TiN9X5',
-                       resource_owner_secret='4Tk4fYabfalS3OO7TLaxqYTUaULy7u')
+                       resource_owner_key='iknbrNSO7rzyvijBabgGWcUv4wCfB4',
+                       resource_owner_secret='r2Qzln8LiqW49klZWOOpZXKlF6voiW')
 
 
 
@@ -80,6 +80,7 @@ def menu1():
         print "11. Delete a file"
         print "12. Get folder"
         print "13. Upload a new File"
+        print "14. Upload File Data"
         print "0. Quit"
         choice = raw_input(" >>  ")
         exec_menu(choice)
@@ -128,7 +129,18 @@ def upload_new_file():
         print 'response', r.text
     else:
     	print 'Can not create a new file without name'
-
+def upload_file_data():
+    file_id = raw_input("File id:  ")
+    url = BASE_URL +"/file/"+file_id+"/data"
+    uri, headers, _ = client.sign(url, http_method='GET')
+    path = raw_input("Absolute path of the file:  ")
+    with open (path, "r") as myfile:
+        data=myfile.read()
+    #files = {'file': open(path, 'rb')}
+    headers['StackSync-API'] = "v2"
+    r = requests.put(uri, data=data, headers=headers)
+    print 'response', r
+    print 'response', r.text
 
 def update_file_data():
     file_id = raw_input("File id:  ")
@@ -265,7 +277,7 @@ def get_folder():
                                    http_method='GET')
     headers['StackSync-API'] = "v2"
 
-    headers['Content-Type'] = "text/plain"
+    #headers['Content-Type'] = "text/plain"
     r = requests.get(uri, headers=headers)
     print 'response status', r
     print 'response', r.text
@@ -295,6 +307,7 @@ menu_actions = {
     '11': delete_file,
     '12': get_folder,
     '13': upload_new_file,
+    '14': upload_file_data,
     '0': exit,
 }
 
