@@ -65,7 +65,7 @@ def POST(request, api_library, app):
         quota_limit = long(workspace_info['quota_limit'])
 
         #check if the new file exced the quota limit
-        quota_used_after_put = long(quota_used) + long(len(content))
+        quota_used_after_put = quota_used + long(len(content))
         if (quota_used_after_put > quota_limit):
             return create_error_response(413, "Upload exceeds quota.")
             

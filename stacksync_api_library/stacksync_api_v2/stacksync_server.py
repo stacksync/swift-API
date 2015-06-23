@@ -55,7 +55,7 @@ class StacksyncServerController():
         checksum = "0" if checksum is None else checksum
         parent = "null" if parent is None or str(parent) == "0" else parent
 
-        response = self.rpc_server.XmlRpcSyncHandler.newFile(user, name.encode('utf-8'), str(parent),
+        response = self.rpc_server.XmlRpcSyncHandler.newFile(user, name, str(parent),
                                                             str(checksum), str(file_size), str(mimetype), chunks)
 
         return response
