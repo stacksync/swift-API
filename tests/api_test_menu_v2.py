@@ -14,8 +14,8 @@ from urlparse import parse_qs
 import urlparse
 from requests_oauthlib import OAuth1, OAuth1Session
 #BASE_URL = "http://10.30.239.237:8080/oauth"
-BASE_URL = 'http://ast3-deim.urv.cat:8080/v1'
-BASE_URL_OAUTH = "http://ast3-deim.urv.cat:8080/oauth"
+BASE_URL = 'http://10.30.239.237:8080/v1'
+BASE_URL_OAUTH = "http://10.30.239.237:8080/oauth"
 CLIENT_KEY = "b3af4e669daf880fb16563e6f36051b105188d413"
 CLIENT_SECRET = "c168e65c18d75b35d8999b534a3776cf"
 REQUEST_TOKEN_ENDPOINT = "/request_token"
