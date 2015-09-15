@@ -13,7 +13,6 @@ import urllib
 from urlparse import parse_qs
 import urlparse
 from requests_oauthlib import OAuth1, OAuth1Session
-#BASE_URL = "http://10.30.239.237:8080/oauth"
 BASE_URL = 'http://10.30.239.237:8080/v1'
 BASE_URL_OAUTH = "http://10.30.239.237:8080/oauth"
 CLIENT_KEY = "b3af4e669daf880fb16563e6f36051b105188d413"
@@ -286,15 +285,13 @@ def delete_file():
 def get_folder():
     headers = {}
     folder_id = raw_input("Folder id: ")
-    url =BASE_URL+'/folder/' + str(folder_id)+'/contents'
-    #url ='http://localhost:8080/v1/file/578/data'
-    #url ='http://localhost:8080/v1/file?name=tiririri.txt'
+    if folder_id and folder_id != 0:
+        url = BASE_URL+'/folder/' + str(folder_id)+'/contents'
+    else: # if no folder_id provided -> list root
+        url = BASE_URL+'/folder/0'
 
-    # uri, headers, _ = client.sign(url,
-                                #    http_method='GET')
     headers['StackSync-API'] = "v2"
 
-    #headers['Content-Type'] = "text/plain"
     r = requests.get(url, headers=headers, auth=oauth)
     print 'response status', r
     print 'response', r.text
