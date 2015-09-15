@@ -14,8 +14,8 @@ from urlparse import parse_qs
 import urlparse
 from requests_oauthlib import OAuth1, OAuth1Session
 #BASE_URL = "http://10.30.239.237:8080/oauth"
-BASE_URL = 'http://10.30.238.232:8080/v1'
-BASE_URL_OAUTH = "http://10.30.238.232:8080/oauth"
+BASE_URL = 'http://ast3-deim.urv.cat:8080/v1'
+BASE_URL_OAUTH = "http://ast3-deim.urv.cat:8080/oauth"
 CLIENT_KEY = "b3af4e669daf880fb16563e6f36051b105188d413"
 CLIENT_SECRET = "c168e65c18d75b35d8999b534a3776cf"
 REQUEST_TOKEN_ENDPOINT = "/request_token"
@@ -25,8 +25,10 @@ STACKSYNC_AUTHORIZE_ENDPOINT = "/authorize"
 
 oauth = OAuth1(CLIENT_KEY,
                    client_secret=CLIENT_SECRET,
-                   resource_owner_key='ocKhO5UNzet6aKSLvRXc9WGsIkLl1C',
-                   resource_owner_secret='rPxwMhVjeWPnT1yYklbp6Ww8C4BfGQ')
+                   #resource_owner_key='etTcuMo1xTxcBkXFlSLEX5ESasmLxP',
+                   resource_owner_key='Sl3UV1wBax51bkgrwiIeq79RRHJ5iI',
+                   #resource_owner_secret='mQEiJmn7KtoOSqJxHOiX8dWmHQ0J1U')
+                   resource_owner_secret='cq4TCf6jcB8CadhmMXbqmOaO3crh1n')
 
 
 # Main definition - constants
@@ -96,11 +98,13 @@ def create_new_file():
     name = raw_input("File name:  ").decode('utf-8')
     if name:
     	parent = raw_input("Parent id:  ")
+        print parent
     	if parent:
             url = BASE_URL +"/file?name="+name+"&parant="+parent
         else:
             url = BASE_URL +"/file?name="+name
 
+        print url
         content_file = raw_input("Content file:  ")
         headers['StackSync-API'] = "v2"
         headers['Content-Type'] = "text/plain"
@@ -120,7 +124,7 @@ def upload_new_file():
 	    url = BASE_URL +"/file?name="+name+"&parent="+parent
 	else:
 	    url = BASE_URL +"/file?name="+name
-        uri, headers, _ = client.sign(url, http_method='GET')
+        #uri, headers, _ = client.sign(url, http_method='GET')
         path = raw_input("Absolute path of the file:  ")
         with open (path, "r") as myfile:
             data=myfile.read()
@@ -135,7 +139,7 @@ def upload_file_data():
     headers = {}
     file_id = raw_input("File id:  ")
     url = BASE_URL +"/file/"+file_id+"/data"
-    uri, headers, _ = client.sign(url, http_method='GET')
+    #uri, headers, _ = client.sign(url, http_method='GET')
     path = raw_input("Absolute path of the file:  ")
     with open (path, "r") as myfile:
         data=myfile.read()
@@ -149,7 +153,7 @@ def update_file_data():
     headers = {}
     file_id = raw_input("File id:  ")
     url = BASE_URL +'/file/'+str(file_id)+'/data'
-    uri, headers, _ = client.sign(url, http_method='GET')
+    #uri, headers, _ = client.sign(url, http_method='GET')
     content_file = raw_input("Content file:  ")
     headers['StackSync-API'] = "v2"
 
@@ -162,7 +166,7 @@ def update_file_metadata():
     headers = {}
     file_id = raw_input("File id:  ")
     url = BASE_URL +'/file/'+str(file_id)
-    uri, headers, _ = client.sign(url, http_method='GET')
+    #uri, headers, _ = client.sign(url, http_method='GET')
     new_name = raw_input("New name:  ")
     new_parent = raw_input("New parent id: ")
     if not new_name and not new_parent:
@@ -282,7 +286,7 @@ def delete_file():
 def get_folder():
     headers = {}
     folder_id = raw_input("Folder id: ")
-    url =BASE_URL+'/folder/' + str(folder_id)
+    url =BASE_URL+'/folder/' + str(folder_id)+'/contents'
     #url ='http://localhost:8080/v1/file/578/data'
     #url ='http://localhost:8080/v1/file?name=tiririri.txt'
 

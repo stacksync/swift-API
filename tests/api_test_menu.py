@@ -11,8 +11,8 @@ import urllib
 from urlparse import parse_qs
 
 #BASE_URL = "http://10.30.239.237:8080/oauth"
-BASE_URL = 'http://10.30.238.232:8080/v1'
-BASE_URL_OAUTH = "http://10.30.238.232:8080/oauth"
+BASE_URL = 'http://stacksync.urv.cat:8080/v1'
+BASE_URL_OAUTH = "http://stacksync.urv.cat:8080/oauth"
 CLIENT_KEY = "b3af4e669daf880fb16563e6f36051b105188d413"
 CLIENT_SECRET = "c168e65c18d75b35d8999b534a3776cf"
 REQUEST_TOKEN_ENDPOINT = "/request_token"
@@ -24,8 +24,8 @@ client = oauth1.Client(CLIENT_KEY,
                        client_secret=CLIENT_SECRET,
                        signature_type=SIGNATURE_TYPE_QUERY,
                        signature_method=SIGNATURE_PLAINTEXT,
-                       resource_owner_key='iknbrNSO7rzyvijBabgGWcUv4wCfB4',
-                       resource_owner_secret='r2Qzln8LiqW49klZWOOpZXKlF6voiW')
+                       resource_owner_key='1bGrikwZnXvJ9u8KeRBBL6sHQt3w57',
+                       resource_owner_secret='YsI5Wk93DqATUMhPYwtb75uqOaaTJn')
 
 
 
